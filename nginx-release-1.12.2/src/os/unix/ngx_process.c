@@ -185,21 +185,19 @@ ngx_spawn_process(ngx_cycle_t *cycle, ngx_spawn_proc_pt proc, void *data,
 
     pid = fork();
 
-    switch (pid) {
+    switch (pid) 
+    {
+        case -1 : 
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "fork() failed while spawning \"%s\"", name);
+            ngx_close_channel(ngx_processes[s].channel, cycle->log);
+            return NGX_INVALID_PID;
 
-    case -1:
-        ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                      "fork() failed while spawning \"%s\"", name);
-        ngx_close_channel(ngx_processes[s].channel, cycle->log);
-        return NGX_INVALID_PID;
+        case  0 :
+            ngx_pid = ngx_getpid();
+            proc(cycle, data);
+            break;
 
-    case 0:
-        ngx_pid = ngx_getpid();
-        proc(cycle, data);
-        break;
-
-    default:
-        break;
+        default : break;
     }
 
     ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "start %s %P", name, pid);

@@ -2889,26 +2889,20 @@ ngx_http_ssi_create_loc_conf(ngx_conf_t *cf)
     return slcf;
 }
 
-
-static char *
-ngx_http_ssi_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
+static char * ngx_http_ssi_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 {
     ngx_http_ssi_loc_conf_t *prev = parent;
     ngx_http_ssi_loc_conf_t *conf = child;
 
     ngx_conf_merge_value(conf->enable, prev->enable, 0);
     ngx_conf_merge_value(conf->silent_errors, prev->silent_errors, 0);
-    ngx_conf_merge_value(conf->ignore_recycled_buffers,
-                         prev->ignore_recycled_buffers, 0);
+    ngx_conf_merge_value(conf->ignore_recycled_buffers, prev->ignore_recycled_buffers, 0);
     ngx_conf_merge_value(conf->last_modified, prev->last_modified, 0);
 
     ngx_conf_merge_size_value(conf->min_file_chunk, prev->min_file_chunk, 1024);
     ngx_conf_merge_size_value(conf->value_len, prev->value_len, 255);
 
-    if (ngx_http_merge_types(cf, &conf->types_keys, &conf->types,
-                             &prev->types_keys, &prev->types,
-                             ngx_http_html_default_types)
-        != NGX_OK)
+    if (ngx_http_merge_types(cf, &conf->types_keys, &conf->types, &prev->types_keys, &prev->types, ngx_http_html_default_types) != NGX_OK)
     {
         return NGX_CONF_ERROR;
     }
@@ -2916,15 +2910,13 @@ ngx_http_ssi_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
     return NGX_CONF_OK;
 }
 
-
-static ngx_int_t
-ngx_http_ssi_filter_init(ngx_conf_t *cf)
+static ngx_int_t ngx_http_ssi_filter_init(ngx_conf_t *cf)
 {
     ngx_http_next_header_filter = ngx_http_top_header_filter;
-    ngx_http_top_header_filter = ngx_http_ssi_header_filter;
+    ngx_http_top_header_filter  = ngx_http_ssi_header_filter;
 
-    ngx_http_next_body_filter = ngx_http_top_body_filter;
-    ngx_http_top_body_filter = ngx_http_ssi_body_filter;
+    ngx_http_next_body_filter   = ngx_http_top_body_filter;
+    ngx_http_top_body_filter    = ngx_http_ssi_body_filter;
 
     return NGX_OK;
 }

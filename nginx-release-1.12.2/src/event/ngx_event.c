@@ -190,8 +190,7 @@ ngx_module_t  ngx_event_core_module = {
 };
 
 
-void
-ngx_process_events_and_timers(ngx_cycle_t *cycle)
+void ngx_process_events_and_timers(ngx_cycle_t *cycle)
 {
     ngx_uint_t  flags;
     ngx_msec_t  timer, delta;
@@ -243,31 +242,29 @@ ngx_process_events_and_timers(ngx_cycle_t *cycle)
 
     delta = ngx_current_msec - delta;
 
-    ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0,
-                   "timer delta: %M", delta);
+    ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "timer delta: %M", delta);
 
     ngx_event_process_posted(cycle, &ngx_posted_accept_events);
 
-    if (ngx_accept_mutex_held) {
+    if (ngx_accept_mutex_held) 
+    {
         ngx_shmtx_unlock(&ngx_accept_mutex);
     }
 
-    if (delta) {
+    if (delta) 
+    {
         ngx_event_expire_timers();
     }
 
     ngx_event_process_posted(cycle, &ngx_posted_events);
 }
 
-
-ngx_int_t
-ngx_handle_read_event(ngx_event_t *rev, ngx_uint_t flags)
+ngx_int_t ngx_handle_read_event(ngx_event_t *rev, ngx_uint_t flags)
 {
-    if (ngx_event_flags & NGX_USE_CLEAR_EVENT) {
-
-        /* kqueue, epoll */
-
-        if (!rev->active && !rev->ready) {
+    if (ngx_event_flags & NGX_USE_CLEAR_EVENT) 
+    {
+        if (!rev->active && !rev->ready) 
+        {
             if (ngx_add_event(rev, NGX_READ_EVENT, NGX_CLEAR_EVENT)
                 == NGX_ERROR)
             {
@@ -406,22 +403,19 @@ ngx_handle_write_event(ngx_event_t *wev, size_t lowat)
     return NGX_OK;
 }
 
-
-static char *
-ngx_event_init_conf(ngx_cycle_t *cycle, void *conf)
+static char * ngx_event_init_conf(ngx_cycle_t *cycle, void *conf)
 {
-    if (ngx_get_conf(cycle->conf_ctx, ngx_events_module) == NULL) {
-        ngx_log_error(NGX_LOG_EMERG, cycle->log, 0,
-                      "no \"events\" section in configuration");
+    if (ngx_get_conf(cycle->conf_ctx, ngx_events_module) == NULL) 
+    {
+        ngx_log_error(NGX_LOG_EMERG, cycle->log, 0, "no \"events\" section in configuration");
+
         return NGX_CONF_ERROR;
     }
 
     return NGX_CONF_OK;
 }
 
-
-static ngx_int_t
-ngx_event_module_init(ngx_cycle_t *cycle)
+static ngx_int_t ngx_event_module_init(ngx_cycle_t *cycle)
 {
     void              ***cf;
     u_char              *shared;
@@ -503,7 +497,8 @@ ngx_event_module_init(ngx_cycle_t *cycle)
     ngx_str_set(&shm.name, "nginx_shared_zone");
     shm.log = cycle->log;
 
-    if (ngx_shm_alloc(&shm) != NGX_OK) {
+    if (ngx_shm_alloc(&shm) != NGX_OK) 
+    {
         return NGX_ERROR;
     }
 

@@ -1,14 +1,6 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <nginx.h>
-
 
 static void ngx_show_version_info(void);
 static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t *cycle);
@@ -21,45 +13,49 @@ static char *ngx_core_module_init_conf(ngx_cycle_t *cycle, void *conf);
 static char *ngx_set_user(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 static char *ngx_set_env(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 static char *ngx_set_priority(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
-static char *ngx_set_cpu_affinity(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
-static char *ngx_set_worker_processes(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
+static char *ngx_set_cpu_affinity(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+static char *ngx_set_worker_processes(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 static char *ngx_load_module(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+
 #if (NGX_HAVE_DLOPEN)
 static void ngx_unload_module(void *data);
 #endif
 
-
-static ngx_conf_enum_t  ngx_debug_points[] = {
+static ngx_conf_enum_t  ngx_debug_points[] = 
+{
     { ngx_string("stop"), NGX_DEBUG_POINTS_STOP },
     { ngx_string("abort"), NGX_DEBUG_POINTS_ABORT },
     { ngx_null_string, 0 }
 };
 
+static ngx_command_t  ngx_core_commands[] = 
+{
+    { 
+        ngx_string("daemon"),
+        NGX_MAIN_CONF|NGX_DIRECT_CONF|NGX_CONF_FLAG,
+        ngx_conf_set_flag_slot,
+        0,
+        offsetof(ngx_core_conf_t, daemon),
+        NULL 
+    },
 
-static ngx_command_t  ngx_core_commands[] = {
+    { 
+        ngx_string("master_process"),
+        NGX_MAIN_CONF|NGX_DIRECT_CONF|NGX_CONF_FLAG,
+        ngx_conf_set_flag_slot,
+        0,
+        offsetof(ngx_core_conf_t, master),
+        NULL 
+    },
 
-    { ngx_string("daemon"),
-      NGX_MAIN_CONF|NGX_DIRECT_CONF|NGX_CONF_FLAG,
-      ngx_conf_set_flag_slot,
-      0,
-      offsetof(ngx_core_conf_t, daemon),
-      NULL },
-
-    { ngx_string("master_process"),
-      NGX_MAIN_CONF|NGX_DIRECT_CONF|NGX_CONF_FLAG,
-      ngx_conf_set_flag_slot,
-      0,
-      offsetof(ngx_core_conf_t, master),
-      NULL },
-
-    { ngx_string("timer_resolution"),
-      NGX_MAIN_CONF|NGX_DIRECT_CONF|NGX_CONF_TAKE1,
-      ngx_conf_set_msec_slot,
-      0,
-      offsetof(ngx_core_conf_t, timer_resolution),
-      NULL },
+    { 
+        ngx_string("timer_resolution"),
+        NGX_MAIN_CONF|NGX_DIRECT_CONF|NGX_CONF_TAKE1,
+        ngx_conf_set_msec_slot,
+        0,
+        offsetof(ngx_core_conf_t, timer_resolution),
+        NULL 
+    },
 
     { ngx_string("pid"),
       NGX_MAIN_CONF|NGX_DIRECT_CONF|NGX_CONF_TAKE1,
@@ -156,14 +152,15 @@ static ngx_command_t  ngx_core_commands[] = {
 };
 
 
-static ngx_core_module_t  ngx_core_module_ctx = {
+static ngx_core_module_t  ngx_core_module_ctx = 
+{
     ngx_string("core"),
     ngx_core_module_create_conf,
     ngx_core_module_init_conf
 };
 
-
-ngx_module_t  ngx_core_module = {
+ngx_module_t  ngx_core_module = 
+{
     NGX_MODULE_V1,
     &ngx_core_module_ctx,                  /* module context */
     ngx_core_commands,                     /* module directives */
@@ -178,7 +175,6 @@ ngx_module_t  ngx_core_module = {
     NGX_MODULE_V1_PADDING
 };
 
-
 static ngx_uint_t   ngx_show_help;
 static ngx_uint_t   ngx_show_version;
 static ngx_uint_t   ngx_show_configure;
@@ -187,12 +183,9 @@ static u_char      *ngx_conf_file;
 static u_char      *ngx_conf_params;
 static char        *ngx_signal;
 
-
 static char **ngx_os_environ;
 
-
-int ngx_cdecl
-main(int argc, char *const *argv)
+int ngx_cdecl main(int argc, char *const *argv)
 {
     ngx_buf_t        *b;
     ngx_log_t        *log;
@@ -203,7 +196,8 @@ main(int argc, char *const *argv)
 
     ngx_debug_init();
 
-    if (ngx_strerror_init() != NGX_OK) {
+    if (ngx_strerror_init() != NGX_OK) 
+    {
         return 1;
     }
 
@@ -249,52 +243,58 @@ main(int argc, char *const *argv)
     ngx_cycle = &init_cycle;
 
     init_cycle.pool = ngx_create_pool(1024, log);
-    if (init_cycle.pool == NULL) {
+    if (init_cycle.pool == NULL) 
+    {
         return 1;
     }
 
-    if (ngx_save_argv(&init_cycle, argc, argv) != NGX_OK) {
+    if (ngx_save_argv(&init_cycle, argc, argv) != NGX_OK) 
+    {
         return 1;
     }
 
-    if (ngx_process_options(&init_cycle) != NGX_OK) {
+    if (ngx_process_options(&init_cycle) != NGX_OK) 
+    {
         return 1;
     }
 
-    if (ngx_os_init(log) != NGX_OK) {
+    if (ngx_os_init(log) != NGX_OK) 
+    {
         return 1;
     }
 
-    /*
-     * ngx_crc32_table_init() requires ngx_cacheline_size set in ngx_os_init()
-     */
-
-    if (ngx_crc32_table_init() != NGX_OK) {
+    /* ngx_crc32_table_init() requires ngx_cacheline_size set in ngx_os_init() */
+    if (ngx_crc32_table_init() != NGX_OK) 
+    {
         return 1;
     }
 
-    if (ngx_add_inherited_sockets(&init_cycle) != NGX_OK) {
+    if (ngx_add_inherited_sockets(&init_cycle) != NGX_OK) 
+    {
         return 1;
     }
 
-    if (ngx_preinit_modules() != NGX_OK) {
+    if (ngx_preinit_modules() != NGX_OK) 
+    {
         return 1;
     }
 
     cycle = ngx_init_cycle(&init_cycle);
-    if (cycle == NULL) {
-        if (ngx_test_config) {
-            ngx_log_stderr(0, "configuration file %s test failed",
-                           init_cycle.conf_file.data);
+    if (cycle == NULL) 
+    {
+        if (ngx_test_config) 
+        {
+            ngx_log_stderr(0, "configuration file %s test failed", init_cycle.conf_file.data);
         }
 
         return 1;
     }
 
-    if (ngx_test_config) {
-        if (!ngx_quiet_mode) {
-            ngx_log_stderr(0, "configuration file %s test is successful",
-                           cycle->conf_file.data);
+    if (ngx_test_config) 
+    {
+        if (!ngx_quiet_mode) 
+        {
+            ngx_log_stderr(0, "configuration file %s test is successful", cycle->conf_file.data);
         }
 
         if (ngx_dump_config) {
@@ -317,70 +317,77 @@ main(int argc, char *const *argv)
         return 0;
     }
 
-    if (ngx_signal) {
+    if (ngx_signal) 
+    {
         return ngx_signal_process(cycle, ngx_signal);
     }
-
     ngx_os_status(cycle->log);
 
     ngx_cycle = cycle;
 
     ccf = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
 
-    if (ccf->master && ngx_process == NGX_PROCESS_SINGLE) {
+    if (ccf->master && ngx_process == NGX_PROCESS_SINGLE) 
+    {
         ngx_process = NGX_PROCESS_MASTER;
     }
 
 #if !(NGX_WIN32)
-
-    if (ngx_init_signals(cycle->log) != NGX_OK) {
+    if (ngx_init_signals(cycle->log) != NGX_OK) 
+    {
         return 1;
     }
 
-    if (!ngx_inherited && ccf->daemon) {
-        if (ngx_daemon(cycle->log) != NGX_OK) {
+    if (!ngx_inherited && ccf->daemon) 
+    {
+        if (ngx_daemon(cycle->log) != NGX_OK) 
+        {
             return 1;
         }
 
         ngx_daemonized = 1;
     }
 
-    if (ngx_inherited) {
+    if (ngx_inherited) 
+    {
         ngx_daemonized = 1;
     }
 
 #endif
 
-    if (ngx_create_pidfile(&ccf->pid, cycle->log) != NGX_OK) {
+    if (ngx_create_pidfile(&ccf->pid, cycle->log) != NGX_OK) 
+    {
         return 1;
     }
 
-    if (ngx_log_redirect_stderr(cycle) != NGX_OK) {
+    if (ngx_log_redirect_stderr(cycle) != NGX_OK) 
+    {
         return 1;
     }
 
-    if (log->file->fd != ngx_stderr) {
-        if (ngx_close_file(log->file->fd) == NGX_FILE_ERROR) {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                          ngx_close_file_n " built-in log failed");
+    if (log->file->fd != ngx_stderr) 
+    {
+        if (ngx_close_file(log->file->fd) == NGX_FILE_ERROR) 
+        {
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, ngx_close_file_n " built-in log failed");
         }
     }
 
     ngx_use_stderr = 0;
 
-    if (ngx_process == NGX_PROCESS_SINGLE) {
+    if (ngx_process == NGX_PROCESS_SINGLE) 
+    {
         ngx_single_process_cycle(cycle);
-
-    } else {
+    } 
+    else
+    {
         ngx_master_process_cycle(cycle);
     }
 
     return 0;
 }
 
-
-static void
-ngx_show_version_info(void)
+static void ngx_show_version_info(void)
 {
     ngx_write_stderr("nginx version: " NGINX_VER_BUILD NGX_LINEFEED);
 

@@ -23,6 +23,7 @@
 #define NGX_LOG_INFO              7
 #define NGX_LOG_DEBUG             8
 
+
 #define NGX_LOG_DEBUG_CORE        0x010
 #define NGX_LOG_DEBUG_ALLOC       0x020
 #define NGX_LOG_DEBUG_MUTEX       0x040

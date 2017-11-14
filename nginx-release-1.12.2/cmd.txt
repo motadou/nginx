@@ -1,0 +1,2 @@
+sudo /home/kevintian/nginx/objs/nginx -c /home/kevintian/nginx/conf/nginx.conf
+

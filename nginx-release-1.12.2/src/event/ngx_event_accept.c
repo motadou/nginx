@@ -36,8 +36,10 @@ ngx_event_accept(ngx_event_t *ev)
     static ngx_uint_t  use_accept4 = 1;
 #endif
 
-    if (ev->timedout) {
-        if (ngx_enable_accept_events((ngx_cycle_t *) ngx_cycle) != NGX_OK) {
+    if (ev->timedout) 
+    {
+        if (ngx_enable_accept_events((ngx_cycle_t *) ngx_cycle) != NGX_OK) 
+        {
             return;
         }
 
@@ -46,7 +48,8 @@ ngx_event_accept(ngx_event_t *ev)
 
     ecf = ngx_event_get_conf(ngx_cycle->conf_ctx, ngx_event_core_module);
 
-    if (!(ngx_event_flags & NGX_USE_KQUEUE_EVENT)) {
+    if (!(ngx_event_flags & NGX_USE_KQUEUE_EVENT)) 
+    {
         ev->available = ecf->multi_accept;
     }
 
@@ -54,10 +57,10 @@ ngx_event_accept(ngx_event_t *ev)
     ls = lc->listening;
     ev->ready = 0;
 
-    ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0,
-                   "accept on %V, ready: %d", &ls->addr_text, ev->available);
+    ngx_log_debug2(NGX_LOG_DEBUG_EVENT, ev->log, 0, "accept on %V, ready: %d", &ls->addr_text, ev->available);
 
-    do {
+    do 
+    {
         socklen = sizeof(ngx_sockaddr_t);
 
 #if (NGX_HAVE_ACCEPT4)
@@ -70,7 +73,8 @@ ngx_event_accept(ngx_event_t *ev)
         s = accept(lc->fd, &sa.sockaddr, &socklen);
 #endif
 
-        if (s == (ngx_socket_t) -1) {
+        if (s == (ngx_socket_t) -1) 
+        {
             err = ngx_socket_errno;
 
             if (err == NGX_EAGAIN) {

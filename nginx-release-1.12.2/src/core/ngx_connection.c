@@ -1039,25 +1039,24 @@ ngx_get_connection(ngx_socket_t s, ngx_log_t *log)
 
     /* disable warning: Win32 SOCKET is u_int while UNIX socket is int */
 
-    if (ngx_cycle->files && (ngx_uint_t) s >= ngx_cycle->files_n) {
-        ngx_log_error(NGX_LOG_ALERT, log, 0,
-                      "the new socket has number %d, "
-                      "but only %ui files are available",
-                      s, ngx_cycle->files_n);
+    if (ngx_cycle->files && (ngx_uint_t) s >= ngx_cycle->files_n) 
+    {
+        ngx_log_error(NGX_LOG_ALERT, log, 0, "the new socket has number %d, but only %ui files are available", s, ngx_cycle->files_n);
         return NULL;
     }
 
     c = ngx_cycle->free_connections;
 
-    if (c == NULL) {
+    if (c == NULL) 
+    {
         ngx_drain_connections((ngx_cycle_t *) ngx_cycle);
+
         c = ngx_cycle->free_connections;
     }
 
-    if (c == NULL) {
-        ngx_log_error(NGX_LOG_ALERT, log, 0,
-                      "%ui worker_connections are not enough",
-                      ngx_cycle->connection_n);
+    if (c == NULL) 
+    {
+        ngx_log_error(NGX_LOG_ALERT, log, 0, "%ui worker_connections are not enough", ngx_cycle->connection_n);
 
         return NULL;
     }
@@ -1065,7 +1064,8 @@ ngx_get_connection(ngx_socket_t s, ngx_log_t *log)
     ngx_cycle->free_connections = c->data;
     ngx_cycle->free_connection_n--;
 
-    if (ngx_cycle->files && ngx_cycle->files[s] == NULL) {
+    if (ngx_cycle->files && ngx_cycle->files[s] == NULL) 
+    {
         ngx_cycle->files[s] = c;
     }
 
@@ -1074,10 +1074,10 @@ ngx_get_connection(ngx_socket_t s, ngx_log_t *log)
 
     ngx_memzero(c, sizeof(ngx_connection_t));
 
-    c->read = rev;
+    c->read  = rev;
     c->write = wev;
-    c->fd = s;
-    c->log = log;
+    c->fd    = s;
+    c->log   = log;
 
     instance = rev->instance;
 
@@ -1199,9 +1199,7 @@ ngx_close_connection(ngx_connection_t *c)
     }
 }
 
-
-void
-ngx_reusable_connection(ngx_connection_t *c, ngx_uint_t reusable)
+void ngx_reusable_connection(ngx_connection_t *c, ngx_uint_t reusable)
 {
     ngx_log_debug1(NGX_LOG_DEBUG_CORE, c->log, 0,
                    "reusable connection: %ui", reusable);
@@ -1231,8 +1229,7 @@ ngx_reusable_connection(ngx_connection_t *c, ngx_uint_t reusable)
 }
 
 
-static void
-ngx_drain_connections(ngx_cycle_t *cycle)
+static void ngx_drain_connections(ngx_cycle_t *cycle)
 {
     ngx_uint_t         i, n;
     ngx_queue_t       *q;
@@ -1240,16 +1237,17 @@ ngx_drain_connections(ngx_cycle_t *cycle)
 
     n = ngx_max(ngx_min(32, cycle->reusable_connections_n / 8), 1);
 
-    for (i = 0; i < n; i++) {
-        if (ngx_queue_empty(&cycle->reusable_connections_queue)) {
+    for (i = 0; i < n; i++) 
+    {
+        if (ngx_queue_empty(&cycle->reusable_connections_queue)) 
+        {
             break;
         }
 
         q = ngx_queue_last(&cycle->reusable_connections_queue);
         c = ngx_queue_data(q, ngx_connection_t, queue);
 
-        ngx_log_debug0(NGX_LOG_DEBUG_CORE, c->log, 0,
-                       "reusing connection");
+        ngx_log_debug0(NGX_LOG_DEBUG_CORE, c->log, 0, "reusing connection");
 
         c->close = 1;
         c->read->handler(c->read);
