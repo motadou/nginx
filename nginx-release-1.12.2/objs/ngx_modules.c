@@ -1,8 +1,5 @@
-
 #include <ngx_config.h>
 #include <ngx_core.h>
-
-
 
 extern ngx_module_t  ngx_core_module;
 extern ngx_module_t  ngx_errlog_module;
@@ -51,7 +48,8 @@ extern ngx_module_t  ngx_http_copy_filter_module;
 extern ngx_module_t  ngx_http_range_body_filter_module;
 extern ngx_module_t  ngx_http_not_modified_filter_module;
 
-ngx_module_t *ngx_modules[] = {
+ngx_module_t *ngx_modules[] = 
+{
     &ngx_core_module,
     &ngx_errlog_module,
     &ngx_conf_module,
@@ -150,4 +148,3 @@ char *ngx_module_names[] = {
     "ngx_http_not_modified_filter_module",
     NULL
 };
-

@@ -80,38 +80,39 @@ ngx_str_t  ngx_http_html_default_types[] = {
 };
 
 
-static ngx_command_t  ngx_http_commands[] = {
-
-    { ngx_string("http"),
-      NGX_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_NOARGS,
-      ngx_http_block,
-      0,
-      0,
-      NULL },
-
-      ngx_null_command
+static ngx_command_t  ngx_http_commands[] = 
+{
+    { 
+        ngx_string("http"),
+        NGX_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_NOARGS,
+        ngx_http_block,
+        0,
+        0,
+        NULL 
+    },
+    ngx_null_command
 };
 
-
-static ngx_core_module_t  ngx_http_module_ctx = {
+static ngx_core_module_t  ngx_http_module_ctx = 
+{
     ngx_string("http"),
     NULL,
     NULL
 };
 
-
-ngx_module_t  ngx_http_module = {
+ngx_module_t  ngx_http_module = 
+{
     NGX_MODULE_V1,
-    &ngx_http_module_ctx,                  /* module context */
+    &ngx_http_module_ctx,                  /* module context    */
     ngx_http_commands,                     /* module directives */
-    NGX_CORE_MODULE,                       /* module type */
-    NULL,                                  /* init master */
-    NULL,                                  /* init module */
-    NULL,                                  /* init process */
-    NULL,                                  /* init thread */
-    NULL,                                  /* exit thread */
-    NULL,                                  /* exit process */
-    NULL,                                  /* exit master */
+    NGX_CORE_MODULE,                       /* module type       */
+    NULL,                                  /* init master       */
+    NULL,                                  /* init module       */
+    NULL,                                  /* init process      */
+    NULL,                                  /* init thread       */
+    NULL,                                  /* exit thread       */
+    NULL,                                  /* exit process      */
+    NULL,                                  /* exit master       */
     NGX_MODULE_V1_PADDING
 };
 
@@ -216,121 +217,145 @@ ngx_http_block(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     pcf = *cf;
     cf->ctx = ctx;
 
-    for (m = 0; cf->cycle->modules[m]; m++) {
-        if (cf->cycle->modules[m]->type != NGX_HTTP_MODULE) {
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
+
+
+    for (m = 0; cf->cycle->modules[m]; m++) 
+    {
+        if (cf->cycle->modules[m]->type != NGX_HTTP_MODULE) 
+        {
             continue;
         }
 
         module = cf->cycle->modules[m]->ctx;
 
-        if (module->preconfiguration) {
-            if (module->preconfiguration(cf) != NGX_OK) {
+        if (module->preconfiguration) 
+        {
+            if (module->preconfiguration(cf) != NGX_OK) 
+            {
                 return NGX_CONF_ERROR;
             }
         }
     }
 
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
+
     /* parse inside the http{} block */
 
     cf->module_type = NGX_HTTP_MODULE;
-    cf->cmd_type = NGX_HTTP_MAIN_CONF;
-    rv = ngx_conf_parse(cf, NULL);
+    cf->cmd_type    = NGX_HTTP_MAIN_CONF;
 
-    if (rv != NGX_CONF_OK) {
+    rv              = ngx_conf_parse(cf, NULL);
+
+    if (rv != NGX_CONF_OK) 
+    {
         goto failed;
     }
 
-    /*
-     * init http{} main_conf's, merge the server{}s' srv_conf's
-     * and its location{}s' loc_conf's
-     */
-
-    cmcf = ctx->main_conf[ngx_http_core_module.ctx_index];
+    /* init http{} main_conf's, merge the server{}s' srv_conf's and its location{}s' loc_conf's */
+    cmcf  = ctx->main_conf[ngx_http_core_module.ctx_index];
     cscfp = cmcf->servers.elts;
 
-    for (m = 0; cf->cycle->modules[m]; m++) {
-        if (cf->cycle->modules[m]->type != NGX_HTTP_MODULE) {
+    for (m = 0; cf->cycle->modules[m]; m++) 
+    {
+        if (cf->cycle->modules[m]->type != NGX_HTTP_MODULE) 
+        {
             continue;
         }
 
         module = cf->cycle->modules[m]->ctx;
-        mi = cf->cycle->modules[m]->ctx_index;
+        mi     = cf->cycle->modules[m]->ctx_index;
 
         /* init http{} main_conf's */
 
-        if (module->init_main_conf) {
+        if (module->init_main_conf) 
+        {
             rv = module->init_main_conf(cf, ctx->main_conf[mi]);
-            if (rv != NGX_CONF_OK) {
+            if (rv != NGX_CONF_OK) 
+            {
                 goto failed;
             }
         }
 
         rv = ngx_http_merge_servers(cf, cmcf, module, mi);
-        if (rv != NGX_CONF_OK) {
+        if (rv != NGX_CONF_OK) 
+        {
             goto failed;
         }
     }
 
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
+
 
     /* create location trees */
 
-    for (s = 0; s < cmcf->servers.nelts; s++) {
-
+    for (s = 0; s < cmcf->servers.nelts; s++) 
+    {
         clcf = cscfp[s]->ctx->loc_conf[ngx_http_core_module.ctx_index];
 
-        if (ngx_http_init_locations(cf, cscfp[s], clcf) != NGX_OK) {
+        if (ngx_http_init_locations(cf, cscfp[s], clcf) != NGX_OK) 
+        {
             return NGX_CONF_ERROR;
         }
 
-        if (ngx_http_init_static_location_trees(cf, clcf) != NGX_OK) {
+        if (ngx_http_init_static_location_trees(cf, clcf) != NGX_OK) 
+        {
             return NGX_CONF_ERROR;
         }
     }
 
-
-    if (ngx_http_init_phases(cf, cmcf) != NGX_OK) {
+    if (ngx_http_init_phases(cf, cmcf) != NGX_OK) 
+    {
         return NGX_CONF_ERROR;
     }
 
-    if (ngx_http_init_headers_in_hash(cf, cmcf) != NGX_OK) {
+    if (ngx_http_init_headers_in_hash(cf, cmcf) != NGX_OK) 
+    {
         return NGX_CONF_ERROR;
     }
 
-
-    for (m = 0; cf->cycle->modules[m]; m++) {
-        if (cf->cycle->modules[m]->type != NGX_HTTP_MODULE) {
+    for (m = 0; cf->cycle->modules[m]; m++) 
+    {
+        if (cf->cycle->modules[m]->type != NGX_HTTP_MODULE) 
+        {
             continue;
         }
 
         module = cf->cycle->modules[m]->ctx;
 
-        if (module->postconfiguration) {
-            if (module->postconfiguration(cf) != NGX_OK) {
+        printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
+
+        if (module->postconfiguration) 
+        {
+            if (module->postconfiguration(cf) != NGX_OK) 
+            {
                 return NGX_CONF_ERROR;
             }
         }
+
+        printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
     }
 
-    if (ngx_http_variables_init_vars(cf) != NGX_OK) {
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
+    if (ngx_http_variables_init_vars(cf) != NGX_OK) 
+    {
         return NGX_CONF_ERROR;
     }
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
 
-    /*
-     * http{}'s cf->ctx was needed while the configuration merging
-     * and in postconfiguration process
-     */
+    /* http{}'s cf->ctx was needed while the configuration merging and in postconfiguration process */
 
     *cf = pcf;
 
-
-    if (ngx_http_init_phase_handlers(cf, cmcf) != NGX_OK) {
+    if (ngx_http_init_phase_handlers(cf, cmcf) != NGX_OK) 
+    {
         return NGX_CONF_ERROR;
     }
-
-
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
+    
     /* optimize the lists of ports, addresses and server names */
-
-    if (ngx_http_optimize_servers(cf, cmcf, cmcf->ports) != NGX_OK) {
+    if (ngx_http_optimize_servers(cf, cmcf, cmcf->ports) != NGX_OK) 
+    {
         return NGX_CONF_ERROR;
     }
 
@@ -343,62 +368,45 @@ failed:
     return rv;
 }
 
-
-static ngx_int_t
-ngx_http_init_phases(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf)
+static ngx_int_t ngx_http_init_phases(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf)
 {
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_POST_READ_PHASE].handlers,
-                       cf->pool, 1, sizeof(ngx_http_handler_pt))
-        != NGX_OK)
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_POST_READ_PHASE].handlers, cf->pool, 1, sizeof(ngx_http_handler_pt)) != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_SERVER_REWRITE_PHASE].handlers,
-                       cf->pool, 1, sizeof(ngx_http_handler_pt))
-        != NGX_OK)
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_SERVER_REWRITE_PHASE].handlers, cf->pool, 1, sizeof(ngx_http_handler_pt)) != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_REWRITE_PHASE].handlers,
-                       cf->pool, 1, sizeof(ngx_http_handler_pt))
-        != NGX_OK)
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_REWRITE_PHASE].handlers, cf->pool, 1, sizeof(ngx_http_handler_pt)) != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_PREACCESS_PHASE].handlers,
-                       cf->pool, 1, sizeof(ngx_http_handler_pt))
-        != NGX_OK)
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_PREACCESS_PHASE].handlers, cf->pool, 1, sizeof(ngx_http_handler_pt)) != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_ACCESS_PHASE].handlers,
-                       cf->pool, 2, sizeof(ngx_http_handler_pt))
-        != NGX_OK)
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_ACCESS_PHASE].handlers, cf->pool, 2, sizeof(ngx_http_handler_pt)) != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_CONTENT_PHASE].handlers,
-                       cf->pool, 4, sizeof(ngx_http_handler_pt))
-        != NGX_OK)
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_CONTENT_PHASE].handlers, cf->pool, 4, sizeof(ngx_http_handler_pt)) != NGX_OK)
     {
         return NGX_ERROR;
     }
 
-    if (ngx_array_init(&cmcf->phases[NGX_HTTP_LOG_PHASE].handlers,
-                       cf->pool, 1, sizeof(ngx_http_handler_pt))
-        != NGX_OK)
+    if (ngx_array_init(&cmcf->phases[NGX_HTTP_LOG_PHASE].handlers, cf->pool, 1, sizeof(ngx_http_handler_pt)) != NGX_OK)
     {
         return NGX_ERROR;
     }
 
     return NGX_OK;
 }
-
 
 static ngx_int_t
 ngx_http_init_headers_in_hash(ngx_conf_t *cf, ngx_http_core_main_conf_t *cmcf)
@@ -1909,8 +1917,7 @@ ngx_http_add_addrs6(ngx_conf_t *cf, ngx_http_port_t *hport,
 #endif
 
 
-char *
-ngx_http_types_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
+char * ngx_http_types_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
     char  *p = conf;
 
@@ -1921,36 +1928,41 @@ ngx_http_types_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
     types = (ngx_array_t **) (p + cmd->offset);
 
-    if (*types == (void *) -1) {
+    if (*types == (void *) -1) 
+    {
         return NGX_CONF_OK;
     }
 
     default_type = cmd->post;
 
-    if (*types == NULL) {
+    if (*types == NULL) 
+    {
         *types = ngx_array_create(cf->temp_pool, 1, sizeof(ngx_hash_key_t));
-        if (*types == NULL) {
+        if (*types == NULL) 
+        {
             return NGX_CONF_ERROR;
         }
 
-        if (default_type) {
+        if (default_type) 
+        {
             type = ngx_array_push(*types);
-            if (type == NULL) {
+            if (type == NULL) 
+            {
                 return NGX_CONF_ERROR;
             }
 
             type->key = *default_type;
-            type->key_hash = ngx_hash_key(default_type->data,
-                                          default_type->len);
+            type->key_hash = ngx_hash_key(default_type->data, default_type->len);
             type->value = (void *) 4;
         }
     }
 
     value = cf->args->elts;
 
-    for (i = 1; i < cf->args->nelts; i++) {
-
-        if (value[i].len == 1 && value[i].data[0] == '*') {
+    for (i = 1; i < cf->args->nelts; i++) 
+    {
+        if (value[i].len == 1 && value[i].data[0] == '*') 
+        {
             *types = (void *) -1;
             return NGX_CONF_OK;
         }
@@ -1959,23 +1971,25 @@ ngx_http_types_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
         value[i].data[value[i].len] = '\0';
 
         type = (*types)->elts;
-        for (n = 0; n < (*types)->nelts; n++) {
+        for (n = 0; n < (*types)->nelts; n++) 
+        {
+            if (ngx_strcmp(value[i].data, type[n].key.data) == 0) 
+            {
+                ngx_conf_log_error(NGX_LOG_WARN, cf, 0, "duplicate MIME type \"%V\"", &value[i]);
 
-            if (ngx_strcmp(value[i].data, type[n].key.data) == 0) {
-                ngx_conf_log_error(NGX_LOG_WARN, cf, 0,
-                                   "duplicate MIME type \"%V\"", &value[i]);
                 goto next;
             }
         }
 
         type = ngx_array_push(*types);
-        if (type == NULL) {
+        if (type == NULL) 
+        {
             return NGX_CONF_ERROR;
         }
 
-        type->key = value[i];
+        type->key      = value[i];
         type->key_hash = hash;
-        type->value = (void *) 4;
+        type->value    = (void *) 4;
 
     next:
 

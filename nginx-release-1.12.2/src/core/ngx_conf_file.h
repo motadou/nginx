@@ -74,7 +74,8 @@
 #define NGX_MAX_CONF_ERRSTR  1024
 
 
-struct ngx_command_s {
+struct ngx_command_s 
+{
     ngx_str_t             name;
     ngx_uint_t            type;
     char               *(*set)(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
@@ -85,8 +86,8 @@ struct ngx_command_s {
 
 #define ngx_null_command  { ngx_null_string, 0, NULL, 0, 0, NULL }
 
-
-struct ngx_open_file_s {
+struct ngx_open_file_s 
+{
     ngx_fd_t              fd;
     ngx_str_t             name;
 

@@ -153,9 +153,9 @@ ngx_conf_add_dump(ngx_conf_t *cf, ngx_str_t *filename)
     return NGX_OK;
 }
 
+static int iKA = 0;
 
-char *
-ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename)
+char * ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename)
 {
     char             *rv;
     ngx_fd_t          fd;
@@ -173,15 +173,19 @@ ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename)
     prev = NULL;
 #endif
 
-    if (filename) {
+    int iIndex = ++iKA;
 
+    printf("%s|%s|%d======================================================:%d\n", __FILE__, __FUNCTION__, __LINE__, iIndex);
+
+    if (filename) 
+    {
         /* open configuration file */
 
         fd = ngx_open_file(filename->data, NGX_FILE_RDONLY, NGX_FILE_OPEN, 0);
-        if (fd == NGX_INVALID_FILE) {
-            ngx_conf_log_error(NGX_LOG_EMERG, cf, ngx_errno,
-                               ngx_open_file_n " \"%s\" failed",
-                               filename->data);
+        if (fd == NGX_INVALID_FILE) 
+        {
+            ngx_conf_log_error(NGX_LOG_EMERG, cf, ngx_errno, ngx_open_file_n " \"%s\" failed", filename->data);
+
             return NGX_CONF_ERROR;
         }
 
@@ -189,29 +193,30 @@ ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename)
 
         cf->conf_file = &conf_file;
 
-        if (ngx_fd_info(fd, &cf->conf_file->file.info) == NGX_FILE_ERROR) {
-            ngx_log_error(NGX_LOG_EMERG, cf->log, ngx_errno,
-                          ngx_fd_info_n " \"%s\" failed", filename->data);
+        if (ngx_fd_info(fd, &cf->conf_file->file.info) == NGX_FILE_ERROR) 
+        {
+            ngx_log_error(NGX_LOG_EMERG, cf->log, ngx_errno, ngx_fd_info_n " \"%s\" failed", filename->data);
         }
 
         cf->conf_file->buffer = &buf;
 
         buf.start = ngx_alloc(NGX_CONF_BUFFER, cf->log);
-        if (buf.start == NULL) {
+        if (buf.start == NULL) 
+        {
             goto failed;
         }
 
-        buf.pos = buf.start;
-        buf.last = buf.start;
-        buf.end = buf.last + NGX_CONF_BUFFER;
+        buf.pos       = buf.start;
+        buf.last      = buf.start;
+        buf.end       = buf.last + NGX_CONF_BUFFER;
         buf.temporary = 1;
 
-        cf->conf_file->file.fd = fd;
-        cf->conf_file->file.name.len = filename->len;
+        cf->conf_file->file.fd        = fd;
+        cf->conf_file->file.name.len  = filename->len;
         cf->conf_file->file.name.data = filename->data;
-        cf->conf_file->file.offset = 0;
-        cf->conf_file->file.log = cf->log;
-        cf->conf_file->line = 1;
+        cf->conf_file->file.offset    = 0;
+        cf->conf_file->file.log       = cf->log;
+        cf->conf_file->line           = 1;
 
         type = parse_file;
 
@@ -221,24 +226,31 @@ ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename)
 #endif
            )
         {
-            if (ngx_conf_add_dump(cf, filename) != NGX_OK) {
+            if (ngx_conf_add_dump(cf, filename) != NGX_OK) 
+            {
                 goto failed;
             }
 
-        } else {
+        } 
+        else 
+        {
             cf->conf_file->dump = NULL;
         }
 
-    } else if (cf->conf_file->file.fd != NGX_INVALID_FILE) {
-
+    } 
+    else if (cf->conf_file->file.fd != NGX_INVALID_FILE) 
+    {
         type = parse_block;
-
-    } else {
+    } 
+    else 
+    {
         type = parse_param;
     }
 
+    printf("%s|%s|%d|==%d\n", __FILE__, __FUNCTION__, __LINE__, iIndex);
 
-    for ( ;; ) {
+    for ( ; ; ) 
+    {
         rc = ngx_conf_read_token(cf);
 
         /*
@@ -251,13 +263,15 @@ ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename)
          *    NGX_CONF_FILE_DONE    the configuration file is done
          */
 
-        if (rc == NGX_ERROR) {
+        if (rc == NGX_ERROR) 
+        {
             goto done;
         }
 
-        if (rc == NGX_CONF_BLOCK_DONE) {
-
-            if (type != parse_block) {
+        if (rc == NGX_CONF_BLOCK_DONE) 
+        {
+            if (type != parse_block) 
+            {
                 ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unexpected \"}\"");
                 goto failed;
             }
@@ -265,47 +279,48 @@ ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename)
             goto done;
         }
 
-        if (rc == NGX_CONF_FILE_DONE) {
+        if (rc == NGX_CONF_FILE_DONE) 
+        {
+            if (type == parse_block) 
+            {
+                ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unexpected end of file, expecting \"}\"");
 
-            if (type == parse_block) {
-                ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-                                   "unexpected end of file, expecting \"}\"");
                 goto failed;
             }
 
             goto done;
         }
 
-        if (rc == NGX_CONF_BLOCK_START) {
+        if (rc == NGX_CONF_BLOCK_START) 
+        {
+            if (type == parse_param) 
+            {
+                ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "block directives are not supported " "in -g option");
 
-            if (type == parse_param) {
-                ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-                                   "block directives are not supported "
-                                   "in -g option");
                 goto failed;
             }
         }
 
         /* rc == NGX_OK || rc == NGX_CONF_BLOCK_START */
 
-        if (cf->handler) {
+        if (cf->handler) 
+        {
+            /* the custom handler, i.e., that is used in the http's   * "types { ... }" directive  */
 
-            /*
-             * the custom handler, i.e., that is used in the http's
-             * "types { ... }" directive
-             */
-
-            if (rc == NGX_CONF_BLOCK_START) {
+            if (rc == NGX_CONF_BLOCK_START) 
+            {
                 ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unexpected \"{\"");
                 goto failed;
             }
 
             rv = (*cf->handler)(cf, NULL, cf->handler_conf);
-            if (rv == NGX_CONF_OK) {
+            if (rv == NGX_CONF_OK) 
+            {
                 continue;
             }
 
-            if (rv == NGX_CONF_ERROR) {
+            if (rv == NGX_CONF_ERROR) 
+            {
                 goto failed;
             }
 
@@ -314,36 +329,41 @@ ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename)
             goto failed;
         }
 
-
+        printf("%s|%s|%d|==%d\n", __FILE__, __FUNCTION__, __LINE__, iIndex);
         rc = ngx_conf_handler(cf, rc);
+        printf("%s|%s|%d|==%d\n", __FILE__, __FUNCTION__, __LINE__, iIndex);
 
-        if (rc == NGX_ERROR) {
+        if (rc == NGX_ERROR) 
+        {
             goto failed;
         }
     }
 
 failed:
-
     rc = NGX_ERROR;
 
 done:
+    printf("%s|%s|%d|==%d\n", __FILE__, __FUNCTION__, __LINE__, iIndex);
 
-    if (filename) {
-        if (cf->conf_file->buffer->start) {
+    if (filename) 
+    {
+        if (cf->conf_file->buffer->start) 
+        {
             ngx_free(cf->conf_file->buffer->start);
         }
 
-        if (ngx_close_file(fd) == NGX_FILE_ERROR) {
-            ngx_log_error(NGX_LOG_ALERT, cf->log, ngx_errno,
-                          ngx_close_file_n " %s failed",
-                          filename->data);
+        if (ngx_close_file(fd) == NGX_FILE_ERROR) 
+        {
+            ngx_log_error(NGX_LOG_ALERT, cf->log, ngx_errno, ngx_close_file_n " %s failed", filename->data);
+            
             rc = NGX_ERROR;
         }
 
         cf->conf_file = prev;
     }
 
-    if (rc == NGX_ERROR) {
+    if (rc == NGX_ERROR) 
+    {
         return NGX_CONF_ERROR;
     }
 
@@ -351,8 +371,8 @@ done:
 }
 
 
-static ngx_int_t
-ngx_conf_handler(ngx_conf_t *cf, ngx_int_t last)
+
+static ngx_int_t ngx_conf_handler(ngx_conf_t *cf, ngx_int_t last)
 {
     char           *rv;
     void           *conf, **confp;
@@ -360,82 +380,89 @@ ngx_conf_handler(ngx_conf_t *cf, ngx_int_t last)
     ngx_str_t      *name;
     ngx_command_t  *cmd;
 
-    name = cf->args->elts;
+    name  = cf->args->elts;
 
     found = 0;
 
-    for (i = 0; cf->cycle->modules[i]; i++) {
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
 
+    for (i = 0; cf->cycle->modules[i]; i++) 
+    {
         cmd = cf->cycle->modules[i]->commands;
-        if (cmd == NULL) {
+        if (cmd == NULL) 
+        {
             continue;
         }
 
-        for ( /* void */ ; cmd->name.len; cmd++) {
-
-            if (name->len != cmd->name.len) {
+        for ( /* void */ ; cmd->name.len; cmd++) 
+        {
+            if (name->len != cmd->name.len) 
+            {
                 continue;
             }
 
-            if (ngx_strcmp(name->data, cmd->name.data) != 0) {
+            if (ngx_strcmp(name->data, cmd->name.data) != 0) 
+            {
                 continue;
             }
 
             found = 1;
 
-            if (cf->cycle->modules[i]->type != NGX_CONF_MODULE
-                && cf->cycle->modules[i]->type != cf->module_type)
+            if (cf->cycle->modules[i]->type != NGX_CONF_MODULE && cf->cycle->modules[i]->type != cf->module_type)
             {
                 continue;
             }
 
             /* is the directive's location right ? */
 
-            if (!(cmd->type & cf->cmd_type)) {
+            if (!(cmd->type & cf->cmd_type)) 
+            {
                 continue;
             }
 
-            if (!(cmd->type & NGX_CONF_BLOCK) && last != NGX_OK) {
-                ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-                                  "directive \"%s\" is not terminated by \";\"",
-                                  name->data);
+            if (!(cmd->type & NGX_CONF_BLOCK) && last != NGX_OK) 
+            {
+                ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "directive \"%s\" is not terminated by \";\"", name->data);
                 return NGX_ERROR;
             }
 
-            if ((cmd->type & NGX_CONF_BLOCK) && last != NGX_CONF_BLOCK_START) {
-                ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-                                   "directive \"%s\" has no opening \"{\"",
-                                   name->data);
+            if ((cmd->type & NGX_CONF_BLOCK) && last != NGX_CONF_BLOCK_START) 
+            {
+                ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "directive \"%s\" has no opening \"{\"", name->data);
                 return NGX_ERROR;
             }
 
             /* is the directive's argument count right ? */
 
-            if (!(cmd->type & NGX_CONF_ANY)) {
-
-                if (cmd->type & NGX_CONF_FLAG) {
-
-                    if (cf->args->nelts != 2) {
+            if (!(cmd->type & NGX_CONF_ANY)) 
+            {
+                if (cmd->type & NGX_CONF_FLAG) 
+                {
+                    if (cf->args->nelts != 2) 
+                    {
                         goto invalid;
                     }
 
-                } else if (cmd->type & NGX_CONF_1MORE) {
-
-                    if (cf->args->nelts < 2) {
+                } 
+                else if (cmd->type & NGX_CONF_1MORE) 
+                {
+                    if (cf->args->nelts < 2) 
+                    {
                         goto invalid;
                     }
-
-                } else if (cmd->type & NGX_CONF_2MORE) {
-
-                    if (cf->args->nelts < 3) {
+                } 
+                else if (cmd->type & NGX_CONF_2MORE) 
+                {
+                    if (cf->args->nelts < 3) 
+                    {
                         goto invalid;
                     }
-
-                } else if (cf->args->nelts > NGX_CONF_MAX_ARGS) {
-
+                } 
+                else if (cf->args->nelts > NGX_CONF_MAX_ARGS) 
+                {
                     goto invalid;
-
-                } else if (!(cmd->type & argument_number[cf->args->nelts - 1]))
+                } 
+                else if (!(cmd->type & argument_number[cf->args->nelts - 1]))
                 {
                     goto invalid;
                 }
@@ -445,54 +472,59 @@ ngx_conf_handler(ngx_conf_t *cf, ngx_int_t last)
 
             conf = NULL;
 
-            if (cmd->type & NGX_DIRECT_CONF) {
+            if (cmd->type & NGX_DIRECT_CONF) 
+            {
                 conf = ((void **) cf->ctx)[cf->cycle->modules[i]->index];
-
-            } else if (cmd->type & NGX_MAIN_CONF) {
+            } 
+            else if (cmd->type & NGX_MAIN_CONF) 
+            {
                 conf = &(((void **) cf->ctx)[cf->cycle->modules[i]->index]);
-
-            } else if (cf->ctx) {
+            }
+            else if (cf->ctx) 
+            {
                 confp = *(void **) ((char *) cf->ctx + cmd->conf);
 
-                if (confp) {
+                if (confp) 
+                {
                     conf = confp[cf->cycle->modules[i]->ctx_index];
                 }
             }
 
+            printf("%s|%s|%d:%s\n", __FILE__, __FUNCTION__, __LINE__, cmd->name.data);
+
             rv = cmd->set(cf, cmd, conf);
 
-            if (rv == NGX_CONF_OK) {
+            printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
+
+            if (rv == NGX_CONF_OK) 
+            {
                 return NGX_OK;
             }
 
-            if (rv == NGX_CONF_ERROR) {
+            if (rv == NGX_CONF_ERROR) 
+            {
                 return NGX_ERROR;
             }
 
-            ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-                               "\"%s\" directive %s", name->data, rv);
+            ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"%s\" directive %s", name->data, rv);
 
             return NGX_ERROR;
         }
     }
 
-    if (found) {
-        ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-                           "\"%s\" directive is not allowed here", name->data);
+    if (found) 
+    {
+        ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "\"%s\" directive is not allowed here", name->data);
 
         return NGX_ERROR;
     }
 
-    ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-                       "unknown directive \"%s\"", name->data);
+    ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "unknown directive \"%s\"", name->data);
 
     return NGX_ERROR;
 
 invalid:
-
-    ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-                       "invalid number of arguments in \"%s\" directive",
-                       name->data);
+    ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid number of arguments in \"%s\" directive", name->data);
 
     return NGX_ERROR;
 }
@@ -1015,8 +1047,7 @@ ngx_conf_log_error(ngx_uint_t level, ngx_conf_t *cf, ngx_err_t err,
 }
 
 
-char *
-ngx_conf_set_flag_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
+char * ngx_conf_set_flag_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
     char  *p = conf;
 
@@ -1026,7 +1057,8 @@ ngx_conf_set_flag_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
     fp = (ngx_flag_t *) (p + cmd->offset);
 
-    if (*fp != NGX_CONF_UNSET) {
+    if (*fp != NGX_CONF_UNSET) 
+    {
         return "is duplicate";
     }
 

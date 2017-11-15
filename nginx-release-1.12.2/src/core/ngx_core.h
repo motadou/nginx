@@ -1,16 +1,7 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #ifndef _NGX_CORE_H_INCLUDED_
 #define _NGX_CORE_H_INCLUDED_
 
-
 #include <ngx_config.h>
-
 
 typedef struct ngx_module_s          ngx_module_t;
 typedef struct ngx_conf_s            ngx_conf_t;

@@ -113,69 +113,79 @@ static ngx_int_t ngx_http_ssi_preconfiguration(ngx_conf_t *cf);
 static void *ngx_http_ssi_create_main_conf(ngx_conf_t *cf);
 static char *ngx_http_ssi_init_main_conf(ngx_conf_t *cf, void *conf);
 static void *ngx_http_ssi_create_loc_conf(ngx_conf_t *cf);
-static char *ngx_http_ssi_merge_loc_conf(ngx_conf_t *cf,
-    void *parent, void *child);
+static char *ngx_http_ssi_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child);
 static ngx_int_t ngx_http_ssi_filter_init(ngx_conf_t *cf);
 
+static ngx_command_t  ngx_http_ssi_filter_commands[] = 
+{
+    { 
+        ngx_string("ssi"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF|NGX_CONF_FLAG,
+        ngx_conf_set_flag_slot,
+        NGX_HTTP_LOC_CONF_OFFSET,
+        offsetof(ngx_http_ssi_loc_conf_t, enable),
+        NULL 
+    },
 
-static ngx_command_t  ngx_http_ssi_filter_commands[] = {
+    { 
+        ngx_string("ssi_silent_errors"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
+        ngx_conf_set_flag_slot,
+        NGX_HTTP_LOC_CONF_OFFSET,
+        offsetof(ngx_http_ssi_loc_conf_t, silent_errors),
+        NULL 
+    },
 
-    { ngx_string("ssi"),
-      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
-                        |NGX_CONF_FLAG,
-      ngx_conf_set_flag_slot,
-      NGX_HTTP_LOC_CONF_OFFSET,
-      offsetof(ngx_http_ssi_loc_conf_t, enable),
-      NULL },
+    { 
+        ngx_string("ssi_ignore_recycled_buffers"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
+        ngx_conf_set_flag_slot,
+        NGX_HTTP_LOC_CONF_OFFSET,
+        offsetof(ngx_http_ssi_loc_conf_t, ignore_recycled_buffers),
+        NULL 
+    },
 
-    { ngx_string("ssi_silent_errors"),
-      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
-      ngx_conf_set_flag_slot,
-      NGX_HTTP_LOC_CONF_OFFSET,
-      offsetof(ngx_http_ssi_loc_conf_t, silent_errors),
-      NULL },
+    { 
+        ngx_string("ssi_min_file_chunk"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+        ngx_conf_set_size_slot,
+        NGX_HTTP_LOC_CONF_OFFSET,
+        offsetof(ngx_http_ssi_loc_conf_t, min_file_chunk),
+        NULL 
+    },
 
-    { ngx_string("ssi_ignore_recycled_buffers"),
-      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
-      ngx_conf_set_flag_slot,
-      NGX_HTTP_LOC_CONF_OFFSET,
-      offsetof(ngx_http_ssi_loc_conf_t, ignore_recycled_buffers),
-      NULL },
+    { 
+        ngx_string("ssi_value_length"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
+        ngx_conf_set_size_slot,
+        NGX_HTTP_LOC_CONF_OFFSET,
+        offsetof(ngx_http_ssi_loc_conf_t, value_len),
+        NULL 
+    },
 
-    { ngx_string("ssi_min_file_chunk"),
-      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-      ngx_conf_set_size_slot,
-      NGX_HTTP_LOC_CONF_OFFSET,
-      offsetof(ngx_http_ssi_loc_conf_t, min_file_chunk),
-      NULL },
+    { 
+        ngx_string("ssi_types"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_1MORE,
+        ngx_http_types_slot,
+        NGX_HTTP_LOC_CONF_OFFSET,
+        offsetof(ngx_http_ssi_loc_conf_t, types_keys),
+        &ngx_http_html_default_types[0] 
+    },
 
-    { ngx_string("ssi_value_length"),
-      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1,
-      ngx_conf_set_size_slot,
-      NGX_HTTP_LOC_CONF_OFFSET,
-      offsetof(ngx_http_ssi_loc_conf_t, value_len),
-      NULL },
+    { 
+        ngx_string("ssi_last_modified"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
+        ngx_conf_set_flag_slot,
+        NGX_HTTP_LOC_CONF_OFFSET,
+        offsetof(ngx_http_ssi_loc_conf_t, last_modified),
+        NULL 
+    },
 
-    { ngx_string("ssi_types"),
-      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_1MORE,
-      ngx_http_types_slot,
-      NGX_HTTP_LOC_CONF_OFFSET,
-      offsetof(ngx_http_ssi_loc_conf_t, types_keys),
-      &ngx_http_html_default_types[0] },
-
-    { ngx_string("ssi_last_modified"),
-      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_FLAG,
-      ngx_conf_set_flag_slot,
-      NGX_HTTP_LOC_CONF_OFFSET,
-      offsetof(ngx_http_ssi_loc_conf_t, last_modified),
-      NULL },
-
-      ngx_null_command
+    ngx_null_command
 };
 
-
-
-static ngx_http_module_t  ngx_http_ssi_filter_module_ctx = {
+static ngx_http_module_t  ngx_http_ssi_filter_module_ctx = 
+{
     ngx_http_ssi_preconfiguration,         /* preconfiguration */
     ngx_http_ssi_filter_init,              /* postconfiguration */
 
@@ -189,8 +199,8 @@ static ngx_http_module_t  ngx_http_ssi_filter_module_ctx = {
     ngx_http_ssi_merge_loc_conf            /* merge location configuration */
 };
 
-
-ngx_module_t  ngx_http_ssi_filter_module = {
+ngx_module_t  ngx_http_ssi_filter_module = 
+{
     NGX_MODULE_V1,
     &ngx_http_ssi_filter_module_ctx,       /* module context */
     ngx_http_ssi_filter_commands,          /* module directives */
@@ -204,7 +214,6 @@ ngx_module_t  ngx_http_ssi_filter_module = {
     NULL,                                  /* exit master */
     NGX_MODULE_V1_PADDING
 };
-
 
 static ngx_http_output_header_filter_pt  ngx_http_next_header_filter;
 static ngx_http_output_body_filter_pt    ngx_http_next_body_filter;
@@ -324,25 +333,21 @@ static ngx_http_variable_t  ngx_http_ssi_vars[] = {
     { ngx_null_string, NULL, NULL, 0, 0, 0 }
 };
 
-
-
-static ngx_int_t
-ngx_http_ssi_header_filter(ngx_http_request_t *r)
+static ngx_int_t ngx_http_ssi_header_filter(ngx_http_request_t *r)
 {
     ngx_http_ssi_ctx_t       *ctx;
     ngx_http_ssi_loc_conf_t  *slcf;
 
     slcf = ngx_http_get_module_loc_conf(r, ngx_http_ssi_filter_module);
 
-    if (!slcf->enable
-        || r->headers_out.content_length_n == 0
-        || ngx_http_test_content_type(r, &slcf->types) == NULL)
+    if (!slcf->enable || r->headers_out.content_length_n == 0 || ngx_http_test_content_type(r, &slcf->types) == NULL)
     {
         return ngx_http_next_header_filter(r);
     }
 
     ctx = ngx_pcalloc(r->pool, sizeof(ngx_http_ssi_ctx_t));
-    if (ctx == NULL) {
+    if (ctx == NULL) 
+    {
         return NGX_ERROR;
     }
 
@@ -366,15 +371,18 @@ ngx_http_ssi_header_filter(ngx_http_request_t *r)
 
     r->filter_need_in_memory = 1;
 
-    if (r == r->main) {
+    if (r == r->main) 
+    {
         ngx_http_clear_content_length(r);
         ngx_http_clear_accept_ranges(r);
 
-        if (!slcf->last_modified) {
+        if (!slcf->last_modified) 
+        {
             ngx_http_clear_last_modified(r);
             ngx_http_clear_etag(r);
-
-        } else {
+        } 
+        else 
+        {
             ngx_http_weak_etag(r);
         }
     }
@@ -382,9 +390,7 @@ ngx_http_ssi_header_filter(ngx_http_request_t *r)
     return ngx_http_next_header_filter(r);
 }
 
-
-static ngx_int_t
-ngx_http_ssi_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
+static ngx_int_t ngx_http_ssi_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
 {
     size_t                     len;
     ngx_int_t                  rc;
@@ -510,8 +516,8 @@ ngx_http_ssi_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
                         }
 
                         b->memory = 1;
-                        b->pos = ngx_http_ssi_string;
-                        b->last = ngx_http_ssi_string + ctx->saved;
+                        b->pos    = ngx_http_ssi_string;
+                        b->last   = ngx_http_ssi_string + ctx->saved;
 
                         *ctx->last_out = cl;
                         ctx->last_out = &cl->next;
@@ -573,13 +579,12 @@ ngx_http_ssi_body_filter(ngx_http_request_t *r, ngx_chain_t *in)
                             return NGX_ERROR;
                         }
 
-                        if (ctx->saved) {
-                            b->last = ngx_cpymem(b->pos, ngx_http_ssi_string,
-                                                 ctx->saved);
+                        if (ctx->saved) 
+                        {
+                            b->last = ngx_cpymem(b->pos, ngx_http_ssi_string, ctx->saved);
                         }
 
-                        b->last = ngx_cpymem(b->last, ctx->copy_start,
-                                             ctx->copy_end - ctx->copy_start);
+                        b->last = ngx_cpymem(b->last, ctx->copy_start, ctx->copy_end - ctx->copy_start);
 
                         cl = ngx_alloc_chain_link(r->pool);
                         if (cl == NULL) {
@@ -2917,6 +2922,8 @@ static ngx_int_t ngx_http_ssi_filter_init(ngx_conf_t *cf)
 
     ngx_http_next_body_filter   = ngx_http_top_body_filter;
     ngx_http_top_body_filter    = ngx_http_ssi_body_filter;
+
+    printf("ngx_http_ssi_filter_init===\n");
 
     return NGX_OK;
 }
