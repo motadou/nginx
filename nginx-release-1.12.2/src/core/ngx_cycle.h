@@ -25,8 +25,8 @@ struct ngx_shm_zone_s {
     ngx_uint_t                noreuse;  /* unsigned  noreuse:1; */
 };
 
-
-struct ngx_cycle_s {
+struct ngx_cycle_s 
+{
     void                  ****conf_ctx;
     ngx_pool_t               *pool;
 

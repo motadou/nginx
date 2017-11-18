@@ -116,7 +116,11 @@ void ngx_master_process_cycle(ngx_cycle_t *cycle)
 
     ccf = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
 
+    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
+    /// 启动工作进程
     ngx_start_worker_processes(cycle, ccf->worker_processes, NGX_PROCESS_RESPAWN);
+
     ngx_start_cache_manager_processes(cycle, 0);
 
     ngx_new_binary = 0;
@@ -124,8 +128,13 @@ void ngx_master_process_cycle(ngx_cycle_t *cycle)
     sigio          = 0;
     live           = 1;
 
+    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
     for ( ; ; ) 
     {
+        printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
+
         if (delay) 
         {
             if (ngx_sigalrm) 
@@ -281,6 +290,10 @@ void ngx_master_process_cycle(ngx_cycle_t *cycle)
 
 void ngx_single_process_cycle(ngx_cycle_t *cycle)
 {
+    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
+
+
     ngx_uint_t  i;
 
     if (ngx_set_environment(cycle, NULL) == NULL) {
@@ -402,29 +415,23 @@ ngx_start_cache_manager_processes(ngx_cycle_t *cycle, ngx_uint_t respawn)
         return;
     }
 
-    ngx_spawn_process(cycle, ngx_cache_manager_process_cycle,
-                      &ngx_cache_loader_ctx, "cache loader process",
-                      respawn ? NGX_PROCESS_JUST_SPAWN : NGX_PROCESS_NORESPAWN);
+    ngx_spawn_process(cycle, ngx_cache_manager_process_cycle, &ngx_cache_loader_ctx, "cache loader process", respawn ? NGX_PROCESS_JUST_SPAWN : NGX_PROCESS_NORESPAWN);
 
     ch.command = NGX_CMD_OPEN_CHANNEL;
-    ch.pid = ngx_processes[ngx_process_slot].pid;
-    ch.slot = ngx_process_slot;
-    ch.fd = ngx_processes[ngx_process_slot].channel[0];
+    ch.pid     = ngx_processes[ngx_process_slot].pid;
+    ch.slot    = ngx_process_slot;
+    ch.fd      = ngx_processes[ngx_process_slot].channel[0];
 
     ngx_pass_open_channel(cycle, &ch);
 }
 
-
-static void
-ngx_pass_open_channel(ngx_cycle_t *cycle, ngx_channel_t *ch)
+static void ngx_pass_open_channel(ngx_cycle_t *cycle, ngx_channel_t *ch)
 {
     ngx_int_t  i;
 
-    for (i = 0; i < ngx_last_process; i++) {
-
-        if (i == ngx_process_slot
-            || ngx_processes[i].pid == -1
-            || ngx_processes[i].channel[0] == -1)
+    for (i = 0; i < ngx_last_process; i++) 
+    {
+        if (i == ngx_process_slot || ngx_processes[i].pid == -1 || ngx_processes[i].channel[0] == -1)
         {
             continue;
         }
@@ -437,14 +444,12 @@ ngx_pass_open_channel(ngx_cycle_t *cycle, ngx_channel_t *ch)
 
         /* TODO: NGX_AGAIN */
 
-        ngx_write_channel(ngx_processes[i].channel[0],
-                          ch, sizeof(ngx_channel_t), cycle->log);
+        ngx_write_channel(ngx_processes[i].channel[0], ch, sizeof(ngx_channel_t), cycle->log);
     }
 }
 
 
-static void
-ngx_signal_worker_processes(ngx_cycle_t *cycle, int signo)
+static void ngx_signal_worker_processes(ngx_cycle_t *cycle, int signo)
 {
     ngx_int_t      i;
     ngx_err_t      err;
@@ -729,6 +734,8 @@ static void ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
 
     for ( ; ; ) 
     {
+        printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
         if (ngx_exiting) 
         {
             if (ngx_event_no_timers_left() == NGX_OK) 
@@ -891,13 +898,17 @@ static void ngx_worker_process_init(ngx_cycle_t *cycle, ngx_int_t worker)
      * in the worker processes there are no events at all at this point
      */
     ls = cycle->listening.elts;
-    for (i = 0; i < cycle->listening.nelts; i++) {
+    for (i = 0; i < cycle->listening.nelts; i++) 
+    {
         ls[i].previous = NULL;
     }
 
-    for (i = 0; cycle->modules[i]; i++) {
-        if (cycle->modules[i]->init_process) {
-            if (cycle->modules[i]->init_process(cycle) == NGX_ERROR) {
+    for (i = 0; cycle->modules[i]; i++) 
+    {
+        if (cycle->modules[i]->init_process) 
+        {
+            if (cycle->modules[i]->init_process(cycle) == NGX_ERROR) 
+            {
                 /* fatal */
                 exit(2);
             }
@@ -918,20 +929,16 @@ static void ngx_worker_process_init(ngx_cycle_t *cycle, ngx_int_t worker)
             continue;
         }
 
-        if (close(ngx_processes[n].channel[1]) == -1) {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                          "close() channel failed");
+        if (close(ngx_processes[n].channel[1]) == -1) 
+        {
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "close() channel failed");
         }
     }
 
-    if (close(ngx_processes[ngx_process_slot].channel[0]) == -1) {
-        ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                      "close() channel failed");
+    if (close(ngx_processes[ngx_process_slot].channel[0]) == -1) 
+    {
+        ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "close() channel failed");
     }
-
-#if 0
-    ngx_last_process = 0;
-#endif
 
     if (ngx_add_channel_event(cycle, ngx_channel, NGX_READ_EVENT, ngx_channel_handler) == NGX_ERROR)
     {
@@ -1086,9 +1093,7 @@ ngx_channel_handler(ngx_event_t *ev)
     }
 }
 
-
-static void
-ngx_cache_manager_process_cycle(ngx_cycle_t *cycle, void *data)
+static void ngx_cache_manager_process_cycle(ngx_cycle_t *cycle, void *data)
 {
     ngx_cache_manager_ctx_t *ctx = data;
 

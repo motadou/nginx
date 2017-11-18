@@ -21,19 +21,14 @@
 
 typedef struct ngx_peer_connection_s  ngx_peer_connection_t;
 
-typedef ngx_int_t (*ngx_event_get_peer_pt)(ngx_peer_connection_t *pc,
-    void *data);
-typedef void (*ngx_event_free_peer_pt)(ngx_peer_connection_t *pc, void *data,
-    ngx_uint_t state);
-typedef void (*ngx_event_notify_peer_pt)(ngx_peer_connection_t *pc,
-    void *data, ngx_uint_t type);
-typedef ngx_int_t (*ngx_event_set_peer_session_pt)(ngx_peer_connection_t *pc,
-    void *data);
-typedef void (*ngx_event_save_peer_session_pt)(ngx_peer_connection_t *pc,
-    void *data);
+typedef ngx_int_t (*ngx_event_get_peer_pt)(ngx_peer_connection_t *pc, void *data);
+typedef void (*ngx_event_free_peer_pt)(ngx_peer_connection_t *pc, void *data, ngx_uint_t state);
+typedef void (*ngx_event_notify_peer_pt)(ngx_peer_connection_t *pc,void *data, ngx_uint_t type);
+typedef ngx_int_t (*ngx_event_set_peer_session_pt)(ngx_peer_connection_t *pc, void *data);
+typedef void (*ngx_event_save_peer_session_pt)(ngx_peer_connection_t *pc, void *data);
 
-
-struct ngx_peer_connection_s {
+struct ngx_peer_connection_s 
+{
     ngx_connection_t                *connection;
 
     struct sockaddr                 *sockaddr;
@@ -70,9 +65,7 @@ struct ngx_peer_connection_s {
     NGX_COMPAT_END
 };
 
-
 ngx_int_t ngx_event_connect_peer(ngx_peer_connection_t *pc);
 ngx_int_t ngx_event_get_peer(ngx_peer_connection_t *pc, void *data);
-
 
 #endif /* _NGX_EVENT_CONNECT_H_INCLUDED_ */

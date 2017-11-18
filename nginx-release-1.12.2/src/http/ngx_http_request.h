@@ -161,7 +161,8 @@ typedef enum {
 } ngx_http_state_e;
 
 
-typedef struct {
+typedef struct 
+{
     ngx_str_t                         name;
     ngx_uint_t                        offset;
     ngx_http_header_handler_pt        handler;

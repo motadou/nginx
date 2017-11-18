@@ -1,57 +1,33 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_http.h>
 
 
 #if (NGX_HTTP_CACHE)
-static ngx_int_t ngx_http_upstream_cache(ngx_http_request_t *r,
-    ngx_http_upstream_t *u);
-static ngx_int_t ngx_http_upstream_cache_get(ngx_http_request_t *r,
-    ngx_http_upstream_t *u, ngx_http_file_cache_t **cache);
-static ngx_int_t ngx_http_upstream_cache_send(ngx_http_request_t *r,
-    ngx_http_upstream_t *u);
-static ngx_int_t ngx_http_upstream_cache_background_update(
-    ngx_http_request_t *r, ngx_http_upstream_t *u);
-static ngx_int_t ngx_http_upstream_cache_check_range(ngx_http_request_t *r,
-    ngx_http_upstream_t *u);
-static ngx_int_t ngx_http_upstream_cache_status(ngx_http_request_t *r,
-    ngx_http_variable_value_t *v, uintptr_t data);
-static ngx_int_t ngx_http_upstream_cache_last_modified(ngx_http_request_t *r,
-    ngx_http_variable_value_t *v, uintptr_t data);
-static ngx_int_t ngx_http_upstream_cache_etag(ngx_http_request_t *r,
-    ngx_http_variable_value_t *v, uintptr_t data);
+static ngx_int_t ngx_http_upstream_cache(ngx_http_request_t *r, ngx_http_upstream_t *u);
+static ngx_int_t ngx_http_upstream_cache_get(ngx_http_request_t *r, ngx_http_upstream_t *u, ngx_http_file_cache_t **cache);
+static ngx_int_t ngx_http_upstream_cache_send(ngx_http_request_t *r, ngx_http_upstream_t *u);
+static ngx_int_t ngx_http_upstream_cache_background_update(ngx_http_request_t *r, ngx_http_upstream_t *u);
+static ngx_int_t ngx_http_upstream_cache_check_range(ngx_http_request_t *r, ngx_http_upstream_t *u);
+static ngx_int_t ngx_http_upstream_cache_status(ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
+static ngx_int_t ngx_http_upstream_cache_last_modified(ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
+static ngx_int_t ngx_http_upstream_cache_etag(ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
 #endif
 
 static void ngx_http_upstream_init_request(ngx_http_request_t *r);
 static void ngx_http_upstream_resolve_handler(ngx_resolver_ctx_t *ctx);
 static void ngx_http_upstream_rd_check_broken_connection(ngx_http_request_t *r);
 static void ngx_http_upstream_wr_check_broken_connection(ngx_http_request_t *r);
-static void ngx_http_upstream_check_broken_connection(ngx_http_request_t *r,
-    ngx_event_t *ev);
-static void ngx_http_upstream_connect(ngx_http_request_t *r,
-    ngx_http_upstream_t *u);
-static ngx_int_t ngx_http_upstream_reinit(ngx_http_request_t *r,
-    ngx_http_upstream_t *u);
-static void ngx_http_upstream_send_request(ngx_http_request_t *r,
-    ngx_http_upstream_t *u, ngx_uint_t do_write);
-static ngx_int_t ngx_http_upstream_send_request_body(ngx_http_request_t *r,
-    ngx_http_upstream_t *u, ngx_uint_t do_write);
-static void ngx_http_upstream_send_request_handler(ngx_http_request_t *r,
-    ngx_http_upstream_t *u);
+static void ngx_http_upstream_check_broken_connection(ngx_http_request_t *r, ngx_event_t *ev);
+static void ngx_http_upstream_connect(ngx_http_request_t *r, ngx_http_upstream_t *u);
+static ngx_int_t ngx_http_upstream_reinit(ngx_http_request_t *r, ngx_http_upstream_t *u);
+static void ngx_http_upstream_send_request(ngx_http_request_t *r, ngx_http_upstream_t *u, ngx_uint_t do_write);
+static ngx_int_t ngx_http_upstream_send_request_body(ngx_http_request_t *r, ngx_http_upstream_t *u, ngx_uint_t do_write);
+static void ngx_http_upstream_send_request_handler(ngx_http_request_t *r, ngx_http_upstream_t *u);
 static void ngx_http_upstream_read_request_handler(ngx_http_request_t *r);
-static void ngx_http_upstream_process_header(ngx_http_request_t *r,
-    ngx_http_upstream_t *u);
-static ngx_int_t ngx_http_upstream_test_next(ngx_http_request_t *r,
-    ngx_http_upstream_t *u);
-static ngx_int_t ngx_http_upstream_intercept_errors(ngx_http_request_t *r,
-    ngx_http_upstream_t *u);
+static void ngx_http_upstream_process_header(ngx_http_request_t *r, ngx_http_upstream_t *u);
+static ngx_int_t ngx_http_upstream_test_next(ngx_http_request_t *r, ngx_http_upstream_t *u);
+static ngx_int_t ngx_http_upstream_intercept_errors(ngx_http_request_t *r, ngx_http_upstream_t *u);
 static ngx_int_t ngx_http_upstream_test_connect(ngx_connection_t *c);
 static ngx_int_t ngx_http_upstream_process_headers(ngx_http_request_t *r,
     ngx_http_upstream_t *u);
@@ -156,44 +132,35 @@ static ngx_int_t ngx_http_upstream_copy_content_encoding(ngx_http_request_t *r,
 #endif
 
 static ngx_int_t ngx_http_upstream_add_variables(ngx_conf_t *cf);
-static ngx_int_t ngx_http_upstream_addr_variable(ngx_http_request_t *r,
-    ngx_http_variable_value_t *v, uintptr_t data);
-static ngx_int_t ngx_http_upstream_status_variable(ngx_http_request_t *r,
-    ngx_http_variable_value_t *v, uintptr_t data);
-static ngx_int_t ngx_http_upstream_response_time_variable(ngx_http_request_t *r,
-    ngx_http_variable_value_t *v, uintptr_t data);
-static ngx_int_t ngx_http_upstream_response_length_variable(
-    ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
-static ngx_int_t ngx_http_upstream_header_variable(ngx_http_request_t *r,
-    ngx_http_variable_value_t *v, uintptr_t data);
-static ngx_int_t ngx_http_upstream_cookie_variable(ngx_http_request_t *r,
-    ngx_http_variable_value_t *v, uintptr_t data);
+static ngx_int_t ngx_http_upstream_addr_variable(ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
+static ngx_int_t ngx_http_upstream_status_variable(ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
+static ngx_int_t ngx_http_upstream_response_time_variable(ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
+static ngx_int_t ngx_http_upstream_response_length_variable(ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
+static ngx_int_t ngx_http_upstream_header_variable(ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
+static ngx_int_t ngx_http_upstream_cookie_variable(ngx_http_request_t *r, ngx_http_variable_value_t *v, uintptr_t data);
 
 static char *ngx_http_upstream(ngx_conf_t *cf, ngx_command_t *cmd, void *dummy);
-static char *ngx_http_upstream_server(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
+static char *ngx_http_upstream_server(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
-static ngx_int_t ngx_http_upstream_set_local(ngx_http_request_t *r,
-  ngx_http_upstream_t *u, ngx_http_upstream_local_t *local);
+static ngx_int_t ngx_http_upstream_set_local(ngx_http_request_t *r, ngx_http_upstream_t *u, ngx_http_upstream_local_t *local);
 
 static void *ngx_http_upstream_create_main_conf(ngx_conf_t *cf);
 static char *ngx_http_upstream_init_main_conf(ngx_conf_t *cf, void *conf);
 
 #if (NGX_HTTP_SSL)
-static void ngx_http_upstream_ssl_init_connection(ngx_http_request_t *,
-    ngx_http_upstream_t *u, ngx_connection_t *c);
+static void ngx_http_upstream_ssl_init_connection(ngx_http_request_t *, ngx_http_upstream_t *u, ngx_connection_t *c);
 static void ngx_http_upstream_ssl_handshake(ngx_connection_t *c);
-static ngx_int_t ngx_http_upstream_ssl_name(ngx_http_request_t *r,
-    ngx_http_upstream_t *u, ngx_connection_t *c);
+static ngx_int_t ngx_http_upstream_ssl_name(ngx_http_request_t *r, ngx_http_upstream_t *u, ngx_connection_t *c);
 #endif
 
-
-static ngx_http_upstream_header_t  ngx_http_upstream_headers_in[] = {
-
-    { ngx_string("Status"),
-                 ngx_http_upstream_process_header_line,
-                 offsetof(ngx_http_upstream_headers_in_t, status),
-                 ngx_http_upstream_copy_header_line, 0, 0 },
+static ngx_http_upstream_header_t  ngx_http_upstream_headers_in[] = 
+{
+    { 
+        ngx_string("Status"),
+        ngx_http_upstream_process_header_line,
+        offsetof(ngx_http_upstream_headers_in_t, status),
+        ngx_http_upstream_copy_header_line, 0, 0 
+    },
 
     { ngx_string("Content-Type"),
                  ngx_http_upstream_process_header_line,
@@ -1139,9 +1106,7 @@ ngx_http_upstream_cache_check_range(ngx_http_request_t *r,
 
 #endif
 
-
-static void
-ngx_http_upstream_resolve_handler(ngx_resolver_ctx_t *ctx)
+static void ngx_http_upstream_resolve_handler(ngx_resolver_ctx_t *ctx)
 {
     ngx_connection_t              *c;
     ngx_http_request_t            *r;
@@ -1156,10 +1121,10 @@ ngx_http_upstream_resolve_handler(ngx_resolver_ctx_t *ctx)
 
     ngx_http_set_log_request(c->log, r);
 
-    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
-                   "http upstream resolve: \"%V?%V\"", &r->uri, &r->args);
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "http upstream resolve: \"%V?%V\"", &r->uri, &r->args);
 
-    if (ctx->state) {
+    if (ctx->state) 
+    {
         ngx_log_error(NGX_LOG_ERR, r->connection->log, 0,
                       "%V could not be resolved (%i: %s)",
                       &ctx->name, ctx->state,
@@ -1170,7 +1135,7 @@ ngx_http_upstream_resolve_handler(ngx_resolver_ctx_t *ctx)
     }
 
     ur->naddrs = ctx->naddrs;
-    ur->addrs = ctx->addrs;
+    ur->addrs  = ctx->addrs;
 
 #if (NGX_DEBUG)
     {
@@ -1215,12 +1180,14 @@ failed:
 }
 
 
-static void
-ngx_http_upstream_handler(ngx_event_t *ev)
+static void ngx_http_upstream_handler(ngx_event_t *ev)
 {
     ngx_connection_t     *c;
     ngx_http_request_t   *r;
     ngx_http_upstream_t  *u;
+
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
+
 
     c = ev->data;
     r = c->data;

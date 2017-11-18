@@ -1,24 +1,14 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_event.h>
 #include <ngx_event_connect.h>
-
 
 #if (NGX_HAVE_TRANSPARENT_PROXY)
 static ngx_int_t ngx_event_connect_set_transparent(ngx_peer_connection_t *pc,
     ngx_socket_t s);
 #endif
 
-
-ngx_int_t
-ngx_event_connect_peer(ngx_peer_connection_t *pc)
+ngx_int_t ngx_event_connect_peer(ngx_peer_connection_t *pc)
 {
     int                rc, type;
 #if (NGX_HAVE_IP_BIND_ADDRESS_NO_PORT || NGX_LINUX)
@@ -40,22 +30,22 @@ ngx_event_connect_peer(ngx_peer_connection_t *pc)
 
     s = ngx_socket(pc->sockaddr->sa_family, type, 0);
 
-    ngx_log_debug2(NGX_LOG_DEBUG_EVENT, pc->log, 0, "%s socket %d",
-                   (type == SOCK_STREAM) ? "stream" : "dgram", s);
+    ngx_log_debug2(NGX_LOG_DEBUG_EVENT, pc->log, 0, "%s socket %d", (type == SOCK_STREAM) ? "stream" : "dgram", s);
 
-    if (s == (ngx_socket_t) -1) {
-        ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno,
-                      ngx_socket_n " failed");
+    if (s == (ngx_socket_t) -1) 
+    {
+        ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno, ngx_socket_n " failed");
+
         return NGX_ERROR;
     }
 
-
     c = ngx_get_connection(s, pc->log);
 
-    if (c == NULL) {
-        if (ngx_close_socket(s) == -1) {
-            ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno,
-                          ngx_close_socket_n "failed");
+    if (c == NULL) 
+    {
+        if (ngx_close_socket(s) == -1) 
+        {
+            ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno, ngx_close_socket_n "failed");
         }
 
         return NGX_ERROR;
@@ -187,12 +177,12 @@ ngx_event_connect_peer(ngx_peer_connection_t *pc)
         }
     }
 
-    ngx_log_debug3(NGX_LOG_DEBUG_EVENT, pc->log, 0,
-                   "connect to %V, fd:%d #%uA", pc->name, s, c->number);
+    ngx_log_debug3(NGX_LOG_DEBUG_EVENT, pc->log, 0, "connect to %V, fd:%d #%uA", pc->name, s, c->number);
 
     rc = connect(s, pc->sockaddr, pc->socklen);
 
-    if (rc == -1) {
+    if (rc == -1) 
+    {
         err = ngx_socket_errno;
 
 
@@ -223,8 +213,7 @@ ngx_event_connect_peer(ngx_peer_connection_t *pc)
                 level = NGX_LOG_CRIT;
             }
 
-            ngx_log_error(level, c->log, err, "connect() to %V failed",
-                          pc->name);
+            ngx_log_error(level, c->log, err, "connect() to %V failed", pc->name);
 
             ngx_close_connection(c);
             pc->connection = NULL;
@@ -233,9 +222,10 @@ ngx_event_connect_peer(ngx_peer_connection_t *pc)
         }
     }
 
-    if (ngx_add_conn) {
-        if (rc == -1) {
-
+    if (ngx_add_conn) 
+    {
+        if (rc == -1) 
+        {
             /* NGX_EINPROGRESS */
 
             return NGX_AGAIN;
@@ -248,14 +238,13 @@ ngx_event_connect_peer(ngx_peer_connection_t *pc)
         return NGX_OK;
     }
 
-    if (ngx_event_flags & NGX_USE_IOCP_EVENT) {
+    if (ngx_event_flags & NGX_USE_IOCP_EVENT) 
+    {
+        ngx_log_debug1(NGX_LOG_DEBUG_EVENT, pc->log, ngx_socket_errno, "connect(): %d", rc);
 
-        ngx_log_debug1(NGX_LOG_DEBUG_EVENT, pc->log, ngx_socket_errno,
-                       "connect(): %d", rc);
-
-        if (ngx_blocking(s) == -1) {
-            ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno,
-                          ngx_blocking_n " failed");
+        if (ngx_blocking(s) == -1) 
+        {
+            ngx_log_error(NGX_LOG_ALERT, pc->log, ngx_socket_errno, ngx_blocking_n " failed");
             goto failed;
         }
 
@@ -402,9 +391,7 @@ ngx_event_connect_set_transparent(ngx_peer_connection_t *pc, ngx_socket_t s)
 
 #endif
 
-
-ngx_int_t
-ngx_event_get_peer(ngx_peer_connection_t *pc, void *data)
+ngx_int_t ngx_event_get_peer(ngx_peer_connection_t *pc, void *data)
 {
     return NGX_OK;
 }

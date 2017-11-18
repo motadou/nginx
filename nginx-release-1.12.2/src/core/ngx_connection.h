@@ -106,19 +106,19 @@ typedef enum {
 } ngx_connection_tcp_nodelay_e;
 
 
-typedef enum {
+typedef enum 
+{
     NGX_TCP_NOPUSH_UNSET = 0,
     NGX_TCP_NOPUSH_SET,
     NGX_TCP_NOPUSH_DISABLED
 } ngx_connection_tcp_nopush_e;
 
-
 #define NGX_LOWLEVEL_BUFFERED  0x0f
 #define NGX_SSL_BUFFERED       0x01
 #define NGX_HTTP_V2_BUFFERED   0x02
 
-
-struct ngx_connection_s {
+struct ngx_connection_s 
+{
     void               *data;
     ngx_event_t        *read;
     ngx_event_t        *write;

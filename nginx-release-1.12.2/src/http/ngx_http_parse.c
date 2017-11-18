@@ -136,169 +136,188 @@ ngx_http_parse_request_line(ngx_http_request_t *r, ngx_buf_t *b)
 
     state = r->state;
 
-    for (p = b->pos; p < b->last; p++) {
+    printf("%s|%s|%d|))))))))))))))))))))))))))))))))))))))))\n", __FILE__, __FUNCTION__, __LINE__);
+    
+    for (p = b->pos; p < b->last; p++) 
+    {
         ch = *p;
 
-        switch (state) {
+        switch (state) 
+        {
+            /* HTTP methods: GET, HEAD, POST */
+            case sw_start:
+                r->request_start = p;
 
-        /* HTTP methods: GET, HEAD, POST */
-        case sw_start:
-            r->request_start = p;
-
-            if (ch == CR || ch == LF) {
-                break;
-            }
-
-            if ((ch < 'A' || ch > 'Z') && ch != '_' && ch != '-') {
-                return NGX_HTTP_PARSE_INVALID_METHOD;
-            }
-
-            state = sw_method;
-            break;
-
-        case sw_method:
-            if (ch == ' ') {
-                r->method_end = p - 1;
-                m = r->request_start;
-
-                switch (p - m) {
-
-                case 3:
-                    if (ngx_str3_cmp(m, 'G', 'E', 'T', ' ')) {
-                        r->method = NGX_HTTP_GET;
-                        break;
-                    }
-
-                    if (ngx_str3_cmp(m, 'P', 'U', 'T', ' ')) {
-                        r->method = NGX_HTTP_PUT;
-                        break;
-                    }
-
-                    break;
-
-                case 4:
-                    if (m[1] == 'O') {
-
-                        if (ngx_str3Ocmp(m, 'P', 'O', 'S', 'T')) {
-                            r->method = NGX_HTTP_POST;
-                            break;
-                        }
-
-                        if (ngx_str3Ocmp(m, 'C', 'O', 'P', 'Y')) {
-                            r->method = NGX_HTTP_COPY;
-                            break;
-                        }
-
-                        if (ngx_str3Ocmp(m, 'M', 'O', 'V', 'E')) {
-                            r->method = NGX_HTTP_MOVE;
-                            break;
-                        }
-
-                        if (ngx_str3Ocmp(m, 'L', 'O', 'C', 'K')) {
-                            r->method = NGX_HTTP_LOCK;
-                            break;
-                        }
-
-                    } else {
-
-                        if (ngx_str4cmp(m, 'H', 'E', 'A', 'D')) {
-                            r->method = NGX_HTTP_HEAD;
-                            break;
-                        }
-                    }
-
-                    break;
-
-                case 5:
-                    if (ngx_str5cmp(m, 'M', 'K', 'C', 'O', 'L')) {
-                        r->method = NGX_HTTP_MKCOL;
-                        break;
-                    }
-
-                    if (ngx_str5cmp(m, 'P', 'A', 'T', 'C', 'H')) {
-                        r->method = NGX_HTTP_PATCH;
-                        break;
-                    }
-
-                    if (ngx_str5cmp(m, 'T', 'R', 'A', 'C', 'E')) {
-                        r->method = NGX_HTTP_TRACE;
-                        break;
-                    }
-
-                    break;
-
-                case 6:
-                    if (ngx_str6cmp(m, 'D', 'E', 'L', 'E', 'T', 'E')) {
-                        r->method = NGX_HTTP_DELETE;
-                        break;
-                    }
-
-                    if (ngx_str6cmp(m, 'U', 'N', 'L', 'O', 'C', 'K')) {
-                        r->method = NGX_HTTP_UNLOCK;
-                        break;
-                    }
-
-                    break;
-
-                case 7:
-                    if (ngx_str7_cmp(m, 'O', 'P', 'T', 'I', 'O', 'N', 'S', ' '))
-                    {
-                        r->method = NGX_HTTP_OPTIONS;
-                    }
-
-                    break;
-
-                case 8:
-                    if (ngx_str8cmp(m, 'P', 'R', 'O', 'P', 'F', 'I', 'N', 'D'))
-                    {
-                        r->method = NGX_HTTP_PROPFIND;
-                    }
-
-                    break;
-
-                case 9:
-                    if (ngx_str9cmp(m,
-                            'P', 'R', 'O', 'P', 'P', 'A', 'T', 'C', 'H'))
-                    {
-                        r->method = NGX_HTTP_PROPPATCH;
-                    }
-
+                if (ch == CR || ch == LF) 
+                {
                     break;
                 }
 
-                state = sw_spaces_before_uri;
+                if ((ch < 'A' || ch > 'Z') && ch != '_' && ch != '-') 
+                {
+                    return NGX_HTTP_PARSE_INVALID_METHOD;
+                }
+
+                state = sw_method;
+
                 break;
-            }
 
-            if ((ch < 'A' || ch > 'Z') && ch != '_' && ch != '-') {
-                return NGX_HTTP_PARSE_INVALID_METHOD;
-            }
+            case sw_method:
+                if (ch == ' ') 
+                {
+                    r->method_end = p - 1;
+                    m = r->request_start;
 
-            break;
+                    switch (p - m) 
+                    {
+                        case 3:
+                            if (ngx_str3_cmp(m, 'G', 'E', 'T', ' ')) 
+                            {
+                                r->method = NGX_HTTP_GET;
+                                break;
+                            }
 
-        /* space* before URI */
-        case sw_spaces_before_uri:
+                            if (ngx_str3_cmp(m, 'P', 'U', 'T', ' ')) 
+                            {
+                                r->method = NGX_HTTP_PUT;
+                                break;
+                            }
 
-            if (ch == '/') {
-                r->uri_start = p;
-                state = sw_after_slash_in_uri;
+                            break;
+
+                        case 4:
+                            if (m[1] == 'O') 
+                            {
+                                if (ngx_str3Ocmp(m, 'P', 'O', 'S', 'T')) 
+                                {
+                                    r->method = NGX_HTTP_POST;
+                                    break;
+                                }
+
+                                if (ngx_str3Ocmp(m, 'C', 'O', 'P', 'Y')) 
+                                {
+                                    r->method = NGX_HTTP_COPY;
+                                    break;
+                                }
+
+                                if (ngx_str3Ocmp(m, 'M', 'O', 'V', 'E')) 
+                                {
+                                    r->method = NGX_HTTP_MOVE;
+                                    break;
+                                }
+
+                                if (ngx_str3Ocmp(m, 'L', 'O', 'C', 'K')) 
+                                {
+                                    r->method = NGX_HTTP_LOCK;
+                                    break;
+                                }
+                            } 
+                            else 
+                            {
+                                if (ngx_str4cmp(m, 'H', 'E', 'A', 'D')) 
+                                {
+                                    r->method = NGX_HTTP_HEAD;
+                                    break;
+                                }
+                            }
+
+                            break;
+
+                        case 5:
+                            if (ngx_str5cmp(m, 'M', 'K', 'C', 'O', 'L')) 
+                            {
+                                r->method = NGX_HTTP_MKCOL;
+                                break;
+                            }
+
+                            if (ngx_str5cmp(m, 'P', 'A', 'T', 'C', 'H')) 
+                            {
+                                r->method = NGX_HTTP_PATCH;
+                                break;
+                            }
+
+                            if (ngx_str5cmp(m, 'T', 'R', 'A', 'C', 'E')) 
+                            {
+                                r->method = NGX_HTTP_TRACE;
+                                break;
+                            }
+    
+                            break;
+
+                        case 6:
+                            if (ngx_str6cmp(m, 'D', 'E', 'L', 'E', 'T', 'E')) 
+                            {
+                                r->method = NGX_HTTP_DELETE;
+                                break;
+                            }
+
+                            if (ngx_str6cmp(m, 'U', 'N', 'L', 'O', 'C', 'K')) 
+                            {
+                                r->method = NGX_HTTP_UNLOCK;
+                                break;
+                            }
+
+                            break;
+
+                        case 7:
+                            if (ngx_str7_cmp(m, 'O', 'P', 'T', 'I', 'O', 'N', 'S', ' '))
+                            {
+                                r->method = NGX_HTTP_OPTIONS;
+                            }
+
+                            break;
+
+                        case 8:
+                            if (ngx_str8cmp(m, 'P', 'R', 'O', 'P', 'F', 'I', 'N', 'D'))
+                            {
+                                r->method = NGX_HTTP_PROPFIND;
+                            }
+
+                            break;
+
+                        case 9:
+                            if (ngx_str9cmp(m, 'P', 'R', 'O', 'P', 'P', 'A', 'T', 'C', 'H'))
+                            {
+                                r->method = NGX_HTTP_PROPPATCH;
+                            }
+
+                            break;
+                    }
+
+                    state = sw_spaces_before_uri;
+                    break;
+                }
+
+                if ((ch < 'A' || ch > 'Z') && ch != '_' && ch != '-') 
+                {
+                    return NGX_HTTP_PARSE_INVALID_METHOD;
+                }
+
                 break;
-            }
 
-            c = (u_char) (ch | 0x20);
-            if (c >= 'a' && c <= 'z') {
-                r->schema_start = p;
-                state = sw_schema;
-                break;
-            }
+            /* space* before URI */
+            case sw_spaces_before_uri:
+                if (ch == '/') 
+                {
+                    r->uri_start = p;
+                    state = sw_after_slash_in_uri;
+                    break;
+                }
 
-            switch (ch) {
-            case ' ':
+                c = (u_char) (ch | 0x20);
+                if (c >= 'a' && c <= 'z') 
+                {
+                    r->schema_start = p;
+                    state = sw_schema;
+                    break;
+                }
+
+                switch (ch) 
+                {
+                    case ' ' : break;
+                    default  : return NGX_HTTP_PARSE_INVALID_REQUEST;
+                }
                 break;
-            default:
-                return NGX_HTTP_PARSE_INVALID_REQUEST;
-            }
-            break;
 
         case sw_schema:
 
@@ -478,71 +497,72 @@ ngx_http_parse_request_line(ngx_http_request_t *r, ngx_buf_t *b)
             break;
 
 
-        /* check "/.", "//", "%", and "\" (Win32) in URI */
-        case sw_after_slash_in_uri:
+                /* check "/.", "//", "%", and "\" (Win32) in URI */
+                case sw_after_slash_in_uri:
+                    if (usual[ch >> 5] & (1U << (ch & 0x1f))) 
+                    {
+                        state = sw_check_uri;
+                        break;
+                    }
 
-            if (usual[ch >> 5] & (1U << (ch & 0x1f))) {
-                state = sw_check_uri;
-                break;
-            }
-
-            switch (ch) {
-            case ' ':
-                r->uri_end = p;
-                state = sw_check_uri_http_09;
-                break;
-            case CR:
-                r->uri_end = p;
-                r->http_minor = 9;
-                state = sw_almost_done;
-                break;
-            case LF:
-                r->uri_end = p;
-                r->http_minor = 9;
-                goto done;
-            case '.':
-                r->complex_uri = 1;
-                state = sw_uri;
-                break;
-            case '%':
-                r->quoted_uri = 1;
-                state = sw_uri;
-                break;
-            case '/':
-                r->complex_uri = 1;
-                state = sw_uri;
-                break;
+                    switch (ch) 
+                    {
+                        case ' ':
+                            r->uri_end = p;
+                            state = sw_check_uri_http_09;
+                            break;
+                        case CR:
+                            r->uri_end    = p;
+                            r->http_minor = 9;
+                            state         = sw_almost_done;
+                            break;
+                        case LF:
+                            r->uri_end    = p;
+                            r->http_minor = 9;
+                            goto done;
+                        case '.':
+                            r->complex_uri = 1;
+                            state          = sw_uri;
+                            break;
+                        case '%':
+                            r->quoted_uri = 1;
+                            state = sw_uri;
+                            break;
+                        case '/':
+                            r->complex_uri = 1;
+                            state = sw_uri;
+                            break;
 #if (NGX_WIN32)
-            case '\\':
-                r->complex_uri = 1;
-                state = sw_uri;
-                break;
+                        case '\\':
+                            r->complex_uri = 1;
+                            state = sw_uri;
+                            break;
 #endif
-            case '?':
-                r->args_start = p + 1;
-                state = sw_uri;
-                break;
-            case '#':
-                r->complex_uri = 1;
-                state = sw_uri;
-                break;
-            case '+':
-                r->plus_in_uri = 1;
-                break;
-            case '\0':
-                return NGX_HTTP_PARSE_INVALID_REQUEST;
-            default:
-                state = sw_check_uri;
-                break;
-            }
-            break;
+                        case '?':
+                            r->args_start = p + 1;
+                            state         = sw_uri;
+                            break;
+                        case '#':
+                            r->complex_uri = 1;
+                            state          = sw_uri;
+                            break;
+                        case '+':
+                            r->plus_in_uri = 1;
+                            break;
+                        case '\0':
+                            return NGX_HTTP_PARSE_INVALID_REQUEST;
+                        default:
+                            state = sw_check_uri;
+                            break;
+                    }
+                    break;
 
-        /* check "/", "%" and "\" (Win32) in URI */
-        case sw_check_uri:
-
-            if (usual[ch >> 5] & (1U << (ch & 0x1f))) {
-                break;
-            }
+                    /* check "/", "%" and "\" (Win32) in URI */
+                    case sw_check_uri:
+                        if (usual[ch >> 5] & (1U << (ch & 0x1f))) 
+                        {
+                            break;
+                        }
 
             switch (ch) {
             case '/':
@@ -782,16 +802,17 @@ ngx_http_parse_request_line(ngx_http_request_t *r, ngx_buf_t *b)
             break;
 
         case sw_spaces_after_digit:
-            switch (ch) {
-            case ' ':
-                break;
-            case CR:
-                state = sw_almost_done;
-                break;
-            case LF:
-                goto done;
-            default:
-                return NGX_HTTP_PARSE_INVALID_REQUEST;
+            switch (ch) 
+            {
+                case ' ':
+                    break;
+                case CR:
+                    state = sw_almost_done;
+                    break;
+                case LF:
+                    goto done;
+                default:
+                    return NGX_HTTP_PARSE_INVALID_REQUEST;
             }
             break;
 
@@ -816,24 +837,25 @@ done:
 
     b->pos = p + 1;
 
-    if (r->request_end == NULL) {
+    if (r->request_end == NULL) 
+    {
         r->request_end = p;
     }
 
     r->http_version = r->http_major * 1000 + r->http_minor;
     r->state = sw_start;
 
-    if (r->http_version == 9 && r->method != NGX_HTTP_GET) {
+    printf("%s|%s|%d|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid(), (int)(r->http_version));
+
+    if (r->http_version == 9 && r->method != NGX_HTTP_GET) 
+    {
         return NGX_HTTP_PARSE_INVALID_09_METHOD;
     }
 
     return NGX_OK;
 }
 
-
-ngx_int_t
-ngx_http_parse_header_line(ngx_http_request_t *r, ngx_buf_t *b,
-    ngx_uint_t allow_underscores)
+ngx_int_t ngx_http_parse_header_line(ngx_http_request_t *r, ngx_buf_t *b, ngx_uint_t allow_underscores)
 {
     u_char      c, ch, *p;
     ngx_uint_t  hash, i;
@@ -1265,6 +1287,8 @@ ngx_http_parse_complex_uri(ngx_http_request_t *r, ngx_uint_t merge_slashes)
     decoded = '\0';
     quoted_state = sw_usual;
 #endif
+
+    printf("%s|%s|%d|%d|\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
     state = sw_usual;
     p = r->uri_start;
@@ -2054,8 +2078,7 @@ ngx_http_parse_set_cookie_lines(ngx_array_t *headers, ngx_str_t *name,
 }
 
 
-ngx_int_t
-ngx_http_arg(ngx_http_request_t *r, u_char *name, size_t len, ngx_str_t *value)
+ngx_int_t ngx_http_arg(ngx_http_request_t *r, u_char *name, size_t len, ngx_str_t *value)
 {
     u_char  *p, *last;
 
@@ -2327,44 +2350,46 @@ data:
     ctx->state = state;
     b->pos = pos;
 
-    if (ctx->size > NGX_MAX_OFF_T_VALUE - 5) {
+    if (ctx->size > NGX_MAX_OFF_T_VALUE - 5) 
+    {
         goto invalid;
     }
 
-    switch (state) {
-
-    case sw_chunk_start:
-        ctx->length = 3 /* "0" LF LF */;
-        break;
-    case sw_chunk_size:
-        ctx->length = 1 /* LF */
+    switch (state) 
+    {
+        case sw_chunk_start:
+            ctx->length = 3 /* "0" LF LF */;
+            break;
+        
+        case sw_chunk_size:
+            ctx->length = 1 /* LF */
                       + (ctx->size ? ctx->size + 4 /* LF "0" LF LF */
                                    : 1 /* LF */);
-        break;
-    case sw_chunk_extension:
-    case sw_chunk_extension_almost_done:
-        ctx->length = 1 /* LF */ + ctx->size + 4 /* LF "0" LF LF */;
-        break;
-    case sw_chunk_data:
-        ctx->length = ctx->size + 4 /* LF "0" LF LF */;
-        break;
-    case sw_after_data:
-    case sw_after_data_almost_done:
-        ctx->length = 4 /* LF "0" LF LF */;
-        break;
-    case sw_last_chunk_extension:
-    case sw_last_chunk_extension_almost_done:
-        ctx->length = 2 /* LF LF */;
-        break;
-    case sw_trailer:
-    case sw_trailer_almost_done:
-        ctx->length = 1 /* LF */;
-        break;
-    case sw_trailer_header:
-    case sw_trailer_header_almost_done:
-        ctx->length = 2 /* LF LF */;
-        break;
-
+            break;
+        
+        case sw_chunk_extension:
+        case sw_chunk_extension_almost_done:
+            ctx->length = 1 /* LF */ + ctx->size + 4 /* LF "0" LF LF */;
+            break;
+        case sw_chunk_data:
+            ctx->length = ctx->size + 4 /* LF "0" LF LF */;
+            break;
+        case sw_after_data:
+        case sw_after_data_almost_done:
+            ctx->length = 4 /* LF "0" LF LF */;
+            break;
+        case sw_last_chunk_extension:
+        case sw_last_chunk_extension_almost_done:
+            ctx->length = 2 /* LF LF */;
+            break;
+        case sw_trailer:
+        case sw_trailer_almost_done:
+            ctx->length = 1 /* LF */;
+            break;
+        case sw_trailer_header:
+        case sw_trailer_header_almost_done:
+            ctx->length = 2 /* LF LF */;
+            break;
     }
 
     return rc;

@@ -95,16 +95,16 @@ ngx_http_static_handler(ngx_http_request_t *r)
     of.errors = clcf->open_file_cache_errors;
     of.events = clcf->open_file_cache_events;
 
-    if (ngx_http_set_disable_symlinks(r, clcf, &path, &of) != NGX_OK) {
+    if (ngx_http_set_disable_symlinks(r, clcf, &path, &of) != NGX_OK) 
+    {
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
 
-    if (ngx_open_cached_file(clcf->open_file_cache, &path, &of, r->pool)
-        != NGX_OK)
+    if (ngx_open_cached_file(clcf->open_file_cache, &path, &of, r->pool) != NGX_OK)
     {
-        switch (of.err) {
-
-        case 0:
+        switch (of.err) 
+        {
+            case 0:
             return NGX_HTTP_INTERNAL_SERVER_ERROR;
 
         case NGX_ENOENT:

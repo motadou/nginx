@@ -1,55 +1,48 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_event.h>
 
-
 ngx_os_io_t  ngx_io;
-
 
 static void ngx_drain_connections(ngx_cycle_t *cycle);
 
-
-ngx_listening_t *
-ngx_create_listening(ngx_conf_t *cf, struct sockaddr *sockaddr,
-    socklen_t socklen)
+ngx_listening_t * ngx_create_listening(ngx_conf_t *cf, struct sockaddr *sockaddr, socklen_t socklen)
 {
     size_t            len;
     ngx_listening_t  *ls;
     struct sockaddr  *sa;
     u_char            text[NGX_SOCKADDR_STRLEN];
 
+    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
     ls = ngx_array_push(&cf->cycle->listening);
-    if (ls == NULL) {
+    if (ls == NULL) 
+    {
         return NULL;
     }
 
     ngx_memzero(ls, sizeof(ngx_listening_t));
 
     sa = ngx_palloc(cf->pool, socklen);
-    if (sa == NULL) {
+    if (sa == NULL) 
+    {
         return NULL;
     }
 
     ngx_memcpy(sa, sockaddr, socklen);
 
     ls->sockaddr = sa;
-    ls->socklen = socklen;
+    ls->socklen  = socklen;
 
     len = ngx_sock_ntop(sa, socklen, text, NGX_SOCKADDR_STRLEN, 1);
     ls->addr_text.len = len;
 
-    switch (ls->sockaddr->sa_family) {
+    switch (ls->sockaddr->sa_family) 
+    {
 #if (NGX_HAVE_INET6)
-    case AF_INET6:
-        ls->addr_text_max_len = NGX_INET6_ADDRSTRLEN;
-        break;
+        case AF_INET6:
+            ls->addr_text_max_len = NGX_INET6_ADDRSTRLEN;
+            break;
 #endif
 #if (NGX_HAVE_UNIX_DOMAIN)
     case AF_UNIX:
@@ -72,12 +65,12 @@ ngx_create_listening(ngx_conf_t *cf, struct sockaddr *sockaddr,
 
     ngx_memcpy(ls->addr_text.data, text, len);
 
-    ls->fd = (ngx_socket_t) -1;
-    ls->type = SOCK_STREAM;
+    ls->fd      = (ngx_socket_t) -1;
+    ls->type    = SOCK_STREAM;
 
     ls->backlog = NGX_LISTEN_BACKLOG;
-    ls->rcvbuf = -1;
-    ls->sndbuf = -1;
+    ls->rcvbuf  = -1;
+    ls->sndbuf  = -1;
 
 #if (NGX_HAVE_SETFIB)
     ls->setfib = -1;
@@ -149,23 +142,24 @@ ngx_set_inherited_sockets(ngx_cycle_t *cycle)
 #endif
 
     ls = cycle->listening.elts;
-    for (i = 0; i < cycle->listening.nelts; i++) {
-
+    for (i = 0; i < cycle->listening.nelts; i++) 
+    {
         ls[i].sockaddr = ngx_palloc(cycle->pool, sizeof(ngx_sockaddr_t));
-        if (ls[i].sockaddr == NULL) {
+        if (ls[i].sockaddr == NULL) 
+        {
             return NGX_ERROR;
         }
 
         ls[i].socklen = sizeof(ngx_sockaddr_t);
-        if (getsockname(ls[i].fd, ls[i].sockaddr, &ls[i].socklen) == -1) {
-            ngx_log_error(NGX_LOG_CRIT, cycle->log, ngx_socket_errno,
-                          "getsockname() of the inherited "
-                          "socket #%d failed", ls[i].fd);
+        if (getsockname(ls[i].fd, ls[i].sockaddr, &ls[i].socklen) == -1) 
+        {
+            ngx_log_error(NGX_LOG_CRIT, cycle->log, ngx_socket_errno, "getsockname() of the inherited " "socket #%d failed", ls[i].fd);
             ls[i].ignore = 1;
             continue;
         }
 
-        if (ls[i].socklen > (socklen_t) sizeof(ngx_sockaddr_t)) {
+        if (ls[i].socklen > (socklen_t) sizeof(ngx_sockaddr_t)) 
+        {
             ls[i].socklen = sizeof(ngx_sockaddr_t);
         }
 
@@ -203,8 +197,7 @@ ngx_set_inherited_sockets(ngx_cycle_t *cycle)
             return NGX_ERROR;
         }
 
-        len = ngx_sock_ntop(ls[i].sockaddr, ls[i].socklen,
-                            ls[i].addr_text.data, len, 1);
+        len = ngx_sock_ntop(ls[i].sockaddr, ls[i].socklen, ls[i].addr_text.data, len, 1);
         if (len == 0) {
             return NGX_ERROR;
         }
@@ -1030,18 +1023,21 @@ ngx_close_listening_sockets(ngx_cycle_t *cycle)
 }
 
 
-ngx_connection_t *
-ngx_get_connection(ngx_socket_t s, ngx_log_t *log)
+ngx_connection_t * ngx_get_connection(ngx_socket_t s, ngx_log_t *log)
 {
     ngx_uint_t         instance;
     ngx_event_t       *rev, *wev;
     ngx_connection_t  *c;
+
+
+    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
     /* disable warning: Win32 SOCKET is u_int while UNIX socket is int */
 
     if (ngx_cycle->files && (ngx_uint_t) s >= ngx_cycle->files_n) 
     {
         ngx_log_error(NGX_LOG_ALERT, log, 0, "the new socket has number %d, but only %ui files are available", s, ngx_cycle->files_n);
+        
         return NULL;
     }
 
@@ -1049,6 +1045,8 @@ ngx_get_connection(ngx_socket_t s, ngx_log_t *log)
 
     if (c == NULL) 
     {
+        printf("%s|%s|%d|%d################################################\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
         ngx_drain_connections((ngx_cycle_t *) ngx_cycle);
 
         c = ngx_cycle->free_connections;
@@ -1061,10 +1059,12 @@ ngx_get_connection(ngx_socket_t s, ngx_log_t *log)
         return NULL;
     }
 
+    printf("%s|%s|%d|%d==============********\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
     ngx_cycle->free_connections = c->data;
     ngx_cycle->free_connection_n--;
 
-    if (ngx_cycle->files && ngx_cycle->files[s] == NULL) 
+    if (ngx_cycle->files && (ngx_cycle->files[s] == NULL))
     {
         ngx_cycle->files[s] = c;
     }
@@ -1087,13 +1087,13 @@ ngx_get_connection(ngx_socket_t s, ngx_log_t *log)
     rev->instance = !instance;
     wev->instance = !instance;
 
-    rev->index = NGX_INVALID_INDEX;
-    wev->index = NGX_INVALID_INDEX;
+    rev->index    = NGX_INVALID_INDEX;
+    wev->index    = NGX_INVALID_INDEX;
 
-    rev->data = c;
-    wev->data = c;
+    rev->data     = c;
+    wev->data     = c;
 
-    wev->write = 1;
+    wev->write    = 1;
 
     return c;
 }
@@ -1111,51 +1111,60 @@ ngx_free_connection(ngx_connection_t *c)
     }
 }
 
-
-void
-ngx_close_connection(ngx_connection_t *c)
+void ngx_close_connection(ngx_connection_t *c)
 {
     ngx_err_t     err;
     ngx_uint_t    log_error, level;
     ngx_socket_t  fd;
 
-    if (c->fd == (ngx_socket_t) -1) {
+    if (c->fd == (ngx_socket_t) -1) 
+    {
         ngx_log_error(NGX_LOG_ALERT, c->log, 0, "connection already closed");
         return;
     }
 
-    if (c->read->timer_set) {
+    if (c->read->timer_set) 
+    {
         ngx_del_timer(c->read);
     }
 
-    if (c->write->timer_set) {
+    if (c->write->timer_set) 
+    {
         ngx_del_timer(c->write);
     }
 
-    if (!c->shared) {
-        if (ngx_del_conn) {
+    if (!c->shared) 
+    {
+        if (ngx_del_conn) 
+        {
             ngx_del_conn(c, NGX_CLOSE_EVENT);
 
-        } else {
-            if (c->read->active || c->read->disabled) {
+        } 
+        else 
+        {
+            if (c->read->active || c->read->disabled) 
+            {
                 ngx_del_event(c->read, NGX_READ_EVENT, NGX_CLOSE_EVENT);
             }
 
-            if (c->write->active || c->write->disabled) {
+            if (c->write->active || c->write->disabled) 
+            {
                 ngx_del_event(c->write, NGX_WRITE_EVENT, NGX_CLOSE_EVENT);
             }
         }
     }
 
-    if (c->read->posted) {
+    if (c->read->posted) 
+    {
         ngx_delete_posted_event(c->read);
     }
 
-    if (c->write->posted) {
+    if (c->write->posted) 
+    {
         ngx_delete_posted_event(c->write);
     }
 
-    c->read->closed = 1;
+    c->read->closed  = 1;
     c->write->closed = 1;
 
     ngx_reusable_connection(c, 0);
@@ -1228,12 +1237,13 @@ void ngx_reusable_connection(ngx_connection_t *c, ngx_uint_t reusable)
     }
 }
 
-
 static void ngx_drain_connections(ngx_cycle_t *cycle)
 {
     ngx_uint_t         i, n;
     ngx_queue_t       *q;
     ngx_connection_t  *c;
+
+    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
     n = ngx_max(ngx_min(32, cycle->reusable_connections_n / 8), 1);
 
@@ -1254,9 +1264,7 @@ static void ngx_drain_connections(ngx_cycle_t *cycle)
     }
 }
 
-
-void
-ngx_close_idle_connections(ngx_cycle_t *cycle)
+void ngx_close_idle_connections(ngx_cycle_t *cycle)
 {
     ngx_uint_t         i;
     ngx_connection_t  *c;
@@ -1274,10 +1282,7 @@ ngx_close_idle_connections(ngx_cycle_t *cycle)
     }
 }
 
-
-ngx_int_t
-ngx_connection_local_sockaddr(ngx_connection_t *c, ngx_str_t *s,
-    ngx_uint_t port)
+ngx_int_t ngx_connection_local_sockaddr(ngx_connection_t *c, ngx_str_t *s, ngx_uint_t port)
 {
     socklen_t             len;
     ngx_uint_t            addr;

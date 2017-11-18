@@ -19,6 +19,8 @@ void ngx_event_process_posted(ngx_cycle_t *cycle, ngx_queue_t *posted)
 
         ngx_delete_posted_event(ev);
 
+        printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
         ev->handler(ev);
     }
 }

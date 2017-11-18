@@ -1,14 +1,6 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_event.h>
-
 
 #if (NGX_TEST_BUILD_EPOLL)
 
@@ -95,7 +87,8 @@ struct io_event {
 #endif /* NGX_TEST_BUILD_EPOLL */
 
 
-typedef struct {
+typedef struct 
+{
     ngx_uint_t  events;
     ngx_uint_t  aio_requests;
 } ngx_epoll_conf_t;
@@ -110,18 +103,14 @@ static void ngx_epoll_notify_handler(ngx_event_t *ev);
 static void ngx_epoll_test_rdhup(ngx_cycle_t *cycle);
 #endif
 static void ngx_epoll_done(ngx_cycle_t *cycle);
-static ngx_int_t ngx_epoll_add_event(ngx_event_t *ev, ngx_int_t event,
-    ngx_uint_t flags);
-static ngx_int_t ngx_epoll_del_event(ngx_event_t *ev, ngx_int_t event,
-    ngx_uint_t flags);
+static ngx_int_t ngx_epoll_add_event(ngx_event_t *ev, ngx_int_t event, ngx_uint_t flags);
+static ngx_int_t ngx_epoll_del_event(ngx_event_t *ev, ngx_int_t event, ngx_uint_t flags);
 static ngx_int_t ngx_epoll_add_connection(ngx_connection_t *c);
-static ngx_int_t ngx_epoll_del_connection(ngx_connection_t *c,
-    ngx_uint_t flags);
+static ngx_int_t ngx_epoll_del_connection(ngx_connection_t *c, ngx_uint_t flags);
 #if (NGX_HAVE_EVENTFD)
 static ngx_int_t ngx_epoll_notify(ngx_event_handler_pt handler);
 #endif
-static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer,
-    ngx_uint_t flags);
+static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags);
 
 #if (NGX_HAVE_FILE_AIO)
 static void ngx_epoll_eventfd_handler(ngx_event_t *ev);
@@ -156,23 +145,27 @@ ngx_uint_t                  ngx_use_epoll_rdhup;
 
 static ngx_str_t      epoll_name = ngx_string("epoll");
 
-static ngx_command_t  ngx_epoll_commands[] = {
+static ngx_command_t  ngx_epoll_commands[] = 
+{
+    { 
+        ngx_string("epoll_events"),
+        NGX_EVENT_CONF|NGX_CONF_TAKE1,
+        ngx_conf_set_num_slot,
+        0,
+        offsetof(ngx_epoll_conf_t, events),
+        NULL 
+    },
 
-    { ngx_string("epoll_events"),
-      NGX_EVENT_CONF|NGX_CONF_TAKE1,
-      ngx_conf_set_num_slot,
-      0,
-      offsetof(ngx_epoll_conf_t, events),
-      NULL },
+    { 
+        ngx_string("worker_aio_requests"),
+        NGX_EVENT_CONF|NGX_CONF_TAKE1,
+        ngx_conf_set_num_slot,
+        0,
+        offsetof(ngx_epoll_conf_t, aio_requests),
+        NULL 
+    },
 
-    { ngx_string("worker_aio_requests"),
-      NGX_EVENT_CONF|NGX_CONF_TAKE1,
-      ngx_conf_set_num_slot,
-      0,
-      offsetof(ngx_epoll_conf_t, aio_requests),
-      NULL },
-
-      ngx_null_command
+    ngx_null_command
 };
 
 
@@ -437,6 +430,8 @@ ngx_epoll_notify_handler(ngx_event_t *ev)
     ngx_err_t             err;
     ngx_event_handler_pt  handler;
 
+    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
     if (++ev->index == NGX_MAX_UINT32_VALUE) {
         ev->index = 0;
 
@@ -575,9 +570,7 @@ ngx_epoll_done(ngx_cycle_t *cycle)
     nevents = 0;
 }
 
-
-static ngx_int_t
-ngx_epoll_add_event(ngx_event_t *ev, ngx_int_t event, ngx_uint_t flags)
+static ngx_int_t ngx_epoll_add_event(ngx_event_t *ev, ngx_int_t event, ngx_uint_t flags)
 {
     int                  op;
     uint32_t             events, prev;
@@ -589,7 +582,8 @@ ngx_epoll_add_event(ngx_event_t *ev, ngx_int_t event, ngx_uint_t flags)
 
     events = (uint32_t) event;
 
-    if (event == NGX_READ_EVENT) {
+    if (event == NGX_READ_EVENT) 
+    {
         e = c->write;
         prev = EPOLLOUT;
 #if (NGX_READ_EVENT != EPOLLIN|EPOLLRDHUP)
@@ -780,9 +774,10 @@ ngx_epoll_notify(ngx_event_handler_pt handler)
 
 #endif
 
-
 static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 {
+    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
     int                events;
     uint32_t           revents;
     ngx_int_t          instance, i;
@@ -796,6 +791,8 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, 
 
     ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "epoll timer: %M", timer);
 
+    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
     events = epoll_wait(ep, event_list, (int) nevents, timer);
 
     err    = (events == -1) ? ngx_errno : 0;
@@ -807,16 +804,18 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, 
 
     if (err) 
     {
-        if (err == NGX_EINTR) {
-
-            if (ngx_event_timer_alarm) {
+        if (err == NGX_EINTR) 
+        {
+            if (ngx_event_timer_alarm) 
+            {
                 ngx_event_timer_alarm = 0;
                 return NGX_OK;
             }
 
             level = NGX_LOG_INFO;
-
-        } else {
+        } 
+        else 
+        {
             level = NGX_LOG_ALERT;
         }
 
@@ -838,12 +837,12 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, 
 
     for (i = 0; i < events; i++) 
     {
-        c = event_list[i].data.ptr;
+        c        = event_list[i].data.ptr;
 
         instance = (uintptr_t) c & 1;
-        c = (ngx_connection_t *) ((uintptr_t) c & (uintptr_t) ~1);
+        c        = (ngx_connection_t *) ((uintptr_t) c & (uintptr_t) ~1);
 
-        rev = c->read;
+        rev      = c->read;
 
         if (c->fd == -1 || rev->instance != instance) 
         {
@@ -860,20 +859,10 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, 
         {
             ngx_log_debug2(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "epoll_wait() error on fd:%d ev:%04XD", c->fd, revents);
 
-            /*
-             * if the error events were returned, add EPOLLIN and EPOLLOUT
-             * to handle the events at least in one active handler
-             */
+            /* if the error events were returned, add EPOLLIN and EPOLLOUT to handle the events at least in one active handler */
 
             revents |= EPOLLIN|EPOLLOUT;
         }
-
-#if 0
-        if (revents & ~(EPOLLIN|EPOLLOUT|EPOLLERR|EPOLLHUP)) 
-        {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, 0, "strange epoll_wait() events fd:%d ev:%04XD", c->fd, revents);
-        }
-#endif
 
         if ((revents & EPOLLIN) && rev->active) 
         {
@@ -896,14 +885,20 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, 
             } 
             else 
             {
+                printf("%s|%s|%d|%d======\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
                 rev->handler(rev);
             }
         }
+
+        printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
         wev = c->write;
 
         if ((revents & EPOLLOUT) && wev->active) 
         {
+            printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
             if (c->fd == -1 || wev->instance != instance) 
             {
                 /*
@@ -920,6 +915,8 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, 
             wev->complete = 1;
 #endif
 
+            printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
             if (flags & NGX_POST_EVENTS) 
             {
                 ngx_post_event(wev, &ngx_posted_events);
@@ -928,6 +925,9 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, 
             {
                 wev->handler(wev);
             }
+
+            printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
         }
     }
 
@@ -1020,26 +1020,23 @@ ngx_epoll_eventfd_handler(ngx_event_t *ev)
 
 #endif
 
-
-static void *
-ngx_epoll_create_conf(ngx_cycle_t *cycle)
+static void * ngx_epoll_create_conf(ngx_cycle_t *cycle)
 {
     ngx_epoll_conf_t  *epcf;
 
     epcf = ngx_palloc(cycle->pool, sizeof(ngx_epoll_conf_t));
-    if (epcf == NULL) {
+    if (epcf == NULL) 
+    {
         return NULL;
     }
 
-    epcf->events = NGX_CONF_UNSET;
+    epcf->events       = NGX_CONF_UNSET;
     epcf->aio_requests = NGX_CONF_UNSET;
 
     return epcf;
 }
 
-
-static char *
-ngx_epoll_init_conf(ngx_cycle_t *cycle, void *conf)
+static char * ngx_epoll_init_conf(ngx_cycle_t *cycle, void *conf)
 {
     ngx_epoll_conf_t *epcf = conf;
 

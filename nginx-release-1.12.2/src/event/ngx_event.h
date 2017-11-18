@@ -1,10 +1,3 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #ifndef _NGX_EVENT_H_INCLUDED_
 #define _NGX_EVENT_H_INCLUDED_
 
@@ -515,26 +508,12 @@ ngx_int_t ngx_handle_read_event(ngx_event_t *rev, ngx_uint_t flags);
 ngx_int_t ngx_handle_write_event(ngx_event_t *wev, size_t lowat);
 
 
-#if (NGX_WIN32)
-void ngx_event_acceptex(ngx_event_t *ev);
-ngx_int_t ngx_event_post_acceptex(ngx_listening_t *ls, ngx_uint_t n);
-u_char *ngx_acceptex_log_error(ngx_log_t *log, u_char *buf, size_t len);
-#endif
-
-
 ngx_int_t ngx_send_lowat(ngx_connection_t *c, size_t lowat);
-
 
 /* used in ngx_log_debugX() */
 #define ngx_event_ident(p)  ((ngx_connection_t *) (p))->fd
 
-
 #include <ngx_event_timer.h>
 #include <ngx_event_posted.h>
-
-#if (NGX_WIN32)
-#include <ngx_iocp_module.h>
-#endif
-
 
 #endif /* _NGX_EVENT_H_INCLUDED_ */

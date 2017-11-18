@@ -94,14 +94,15 @@ ngx_http_copy_filter(ngx_http_request_t *r, ngx_chain_t *in)
 
     c = r->connection;
 
-    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
-                   "http copy filter: \"%V?%V\"", &r->uri, &r->args);
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "http copy filter: \"%V?%V\"", &r->uri, &r->args);
 
     ctx = ngx_http_get_module_ctx(r, ngx_http_copy_filter_module);
 
-    if (ctx == NULL) {
+    if (ctx == NULL) 
+    {
         ctx = ngx_pcalloc(r->pool, sizeof(ngx_output_chain_ctx_t));
-        if (ctx == NULL) {
+        if (ctx == NULL) 
+        {
             return NGX_ERROR;
         }
 
@@ -111,8 +112,7 @@ ngx_http_copy_filter(ngx_http_request_t *r, ngx_chain_t *in)
         clcf = ngx_http_get_module_loc_conf(r, ngx_http_core_module);
 
         ctx->sendfile = c->sendfile;
-        ctx->need_in_memory = r->main_filter_need_in_memory
-                              || r->filter_need_in_memory;
+        ctx->need_in_memory = r->main_filter_need_in_memory || r->filter_need_in_memory;
         ctx->need_in_temp = r->filter_need_temporary;
 
         ctx->alignment = clcf->directio_alignment;
@@ -151,15 +151,16 @@ ngx_http_copy_filter(ngx_http_request_t *r, ngx_chain_t *in)
 
     rc = ngx_output_chain(ctx, in);
 
-    if (ctx->in == NULL) {
+    if (ctx->in == NULL) 
+    {
         r->buffered &= ~NGX_HTTP_COPY_BUFFERED;
-
-    } else {
+    } 
+    else 
+    {
         r->buffered |= NGX_HTTP_COPY_BUFFERED;
     }
 
-    ngx_log_debug3(NGX_LOG_DEBUG_HTTP, c->log, 0,
-                   "http copy filter: %i \"%V?%V\"", rc, &r->uri, &r->args);
+    ngx_log_debug3(NGX_LOG_DEBUG_HTTP, c->log, 0, "http copy filter: %i \"%V?%V\"", rc, &r->uri, &r->args);
 
     return rc;
 }

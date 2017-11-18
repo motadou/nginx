@@ -1374,9 +1374,7 @@ ngx_set_shutdown_timer(ngx_cycle_t *cycle)
     }
 }
 
-
-static void
-ngx_shutdown_timer_handler(ngx_event_t *ev)
+static void ngx_shutdown_timer_handler(ngx_event_t *ev)
 {
     ngx_uint_t         i;
     ngx_cycle_t       *cycle;
@@ -1386,8 +1384,8 @@ ngx_shutdown_timer_handler(ngx_event_t *ev)
 
     c = cycle->connections;
 
-    for (i = 0; i < cycle->connection_n; i++) {
-
+    for (i = 0; i < cycle->connection_n; i++) 
+    {
         if (c[i].fd == (ngx_socket_t) -1
             || c[i].read == NULL
             || c[i].read->accept
@@ -1397,8 +1395,7 @@ ngx_shutdown_timer_handler(ngx_event_t *ev)
             continue;
         }
 
-        ngx_log_debug1(NGX_LOG_DEBUG_CORE, ev->log, 0,
-                       "*%uA shutdown timeout", c[i].number);
+        ngx_log_debug1(NGX_LOG_DEBUG_CORE, ev->log, 0, "*%uA shutdown timeout", c[i].number);
 
         c[i].close = 1;
         c[i].error = 1;
