@@ -128,13 +128,8 @@ void ngx_master_process_cycle(ngx_cycle_t *cycle)
     sigio          = 0;
     live           = 1;
 
-    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
-
     for ( ; ; ) 
     {
-        printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
-
-
         if (delay) 
         {
             if (ngx_sigalrm) 
@@ -291,26 +286,29 @@ void ngx_master_process_cycle(ngx_cycle_t *cycle)
 void ngx_single_process_cycle(ngx_cycle_t *cycle)
 {
     printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
-
-
-
+    
     ngx_uint_t  i;
 
-    if (ngx_set_environment(cycle, NULL) == NULL) {
+    if (ngx_set_environment(cycle, NULL) == NULL) 
+    {
         /* fatal */
         exit(2);
     }
 
-    for (i = 0; cycle->modules[i]; i++) {
-        if (cycle->modules[i]->init_process) {
-            if (cycle->modules[i]->init_process(cycle) == NGX_ERROR) {
+    for (i = 0; cycle->modules[i]; i++) 
+    {
+        if (cycle->modules[i]->init_process) 
+        {
+            if (cycle->modules[i]->init_process(cycle) == NGX_ERROR) 
+            {
                 /* fatal */
                 exit(2);
             }
         }
     }
 
-    for ( ;; ) {
+    for ( ;; ) 
+    {
         ngx_log_debug0(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "worker cycle");
 
         ngx_process_events_and_timers(cycle);

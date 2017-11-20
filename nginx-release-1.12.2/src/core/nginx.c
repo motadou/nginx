@@ -548,15 +548,16 @@ ngx_set_environment(ngx_cycle_t *cycle, ngx_uint_t *last)
 
     ccf = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
 
-    if (last == NULL && ccf->environment) {
+    if (last == NULL && ccf->environment) 
+    {
         return ccf->environment;
     }
 
     var = ccf->env.elts;
 
-    for (i = 0; i < ccf->env.nelts; i++) {
-        if (ngx_strcmp(var[i].data, "TZ") == 0
-            || ngx_strncmp(var[i].data, "TZ=", 3) == 0)
+    for (i = 0; i < ccf->env.nelts; i++) 
+    {
+        if (ngx_strcmp(var[i].data, "TZ") == 0 || ngx_strncmp(var[i].data, "TZ=", 3) == 0)
         {
             goto tz_found;
         }

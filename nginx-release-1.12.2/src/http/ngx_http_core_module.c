@@ -1996,8 +1996,10 @@ u_char * ngx_http_map_uri_to_path(ngx_http_request_t *r, ngx_str_t *path, size_t
     u_char                    *last;
     size_t                     alias;
     ngx_http_core_loc_conf_t  *clcf;
-
-    clcf = ngx_http_get_module_loc_conf(r, ngx_http_core_module);
+    
+    printf("%s|%s|%d|PATHPATHPATHPATHPATHPATHPATHPATHPATHPATHPATH\n", __FILE__, __FUNCTION__, __LINE__);
+    
+    clcf  = ngx_http_get_module_loc_conf(r, ngx_http_core_module);
 
     alias = clcf->alias;
 
@@ -2011,16 +2013,15 @@ u_char * ngx_http_map_uri_to_path(ngx_http_request_t *r, ngx_str_t *path, size_t
     {
         *root_length = clcf->root.len;
 
-        path->len = clcf->root.len + reserved + r->uri.len - alias + 1;
+        path->len    = clcf->root.len + reserved + r->uri.len - alias + 1;
 
-        path->data = ngx_pnalloc(r->pool, path->len);
+        path->data   = ngx_pnalloc(r->pool, path->len);
         if (path->data == NULL) 
         {
             return NULL;
         }
 
         last = ngx_copy(path->data, clcf->root.data, clcf->root.len);
-
     } 
     else 
     {
@@ -2038,8 +2039,7 @@ u_char * ngx_http_map_uri_to_path(ngx_http_request_t *r, ngx_str_t *path, size_t
             return NULL;
         }
 
-        if (ngx_get_full_name(r->pool, (ngx_str_t *) &ngx_cycle->prefix, path)
-            != NGX_OK)
+        if (ngx_get_full_name(r->pool, (ngx_str_t *) &ngx_cycle->prefix, path) != NGX_OK)
         {
             return NULL;
         }
@@ -2047,8 +2047,10 @@ u_char * ngx_http_map_uri_to_path(ngx_http_request_t *r, ngx_str_t *path, size_t
         *root_length = path->len - reserved;
         last = path->data + *root_length;
 
-        if (alias == NGX_MAX_SIZE_T_VALUE) {
-            if (!r->add_uri_to_alias) {
+        if (alias == NGX_MAX_SIZE_T_VALUE) 
+        {
+            if (!r->add_uri_to_alias) 
+            {
                 *last = '\0';
                 return last;
             }
@@ -2062,9 +2064,7 @@ u_char * ngx_http_map_uri_to_path(ngx_http_request_t *r, ngx_str_t *path, size_t
     return last;
 }
 
-
-ngx_int_t
-ngx_http_auth_basic_user(ngx_http_request_t *r)
+ngx_int_t ngx_http_auth_basic_user(ngx_http_request_t *r)
 {
     ngx_str_t   auth, encoded;
     ngx_uint_t  len;

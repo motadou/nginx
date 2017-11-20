@@ -116,24 +116,23 @@ static ngx_int_t ngx_http_static_handler(ngx_http_request_t *r)
 
             case NGX_EACCES:
 #if (NGX_HAVE_OPENAT)
-        case NGX_EMLINK:
-        case NGX_ELOOP:
+            case NGX_EMLINK:
+            case NGX_ELOOP:
 #endif
 
-            level = NGX_LOG_ERR;
-            rc = NGX_HTTP_FORBIDDEN;
-            break;
+                level = NGX_LOG_ERR;
+                rc = NGX_HTTP_FORBIDDEN;
+                break;
 
-        default:
-
-            level = NGX_LOG_CRIT;
-            rc = NGX_HTTP_INTERNAL_SERVER_ERROR;
-            break;
+            default:
+                level = NGX_LOG_CRIT;
+                rc    = NGX_HTTP_INTERNAL_SERVER_ERROR;
+                break;
         }
 
-        if (rc != NGX_HTTP_NOT_FOUND || clcf->log_not_found) {
-            ngx_log_error(level, log, of.err,
-                          "%s \"%s\" failed", of.failed, path.data);
+        if (rc != NGX_HTTP_NOT_FOUND || clcf->log_not_found) 
+        {
+            ngx_log_error(level, log, of.err, "%s \"%s\" failed", of.failed, path.data);
         }
 
         return rc;
@@ -274,15 +273,13 @@ static ngx_int_t ngx_http_static_handler(ngx_http_request_t *r)
     b->file->log      = log;
     b->file->directio = of.is_directio;
 
-    out.buf = b;
-    out.next = NULL;
+    out.buf           = b;
+    out.next          = NULL;
 
     return ngx_http_output_filter(r, &out);
 }
 
-
-static ngx_int_t
-ngx_http_static_init(ngx_conf_t *cf)
+static ngx_int_t ngx_http_static_init(ngx_conf_t *cf)
 {
     ngx_http_handler_pt        *h;
     ngx_http_core_main_conf_t  *cmcf;
@@ -290,7 +287,8 @@ ngx_http_static_init(ngx_conf_t *cf)
     cmcf = ngx_http_conf_get_module_main_conf(cf, ngx_http_core_module);
 
     h = ngx_array_push(&cmcf->phases[NGX_HTTP_CONTENT_PHASE].handlers);
-    if (h == NULL) {
+    if (h == NULL) 
+    {
         return NGX_ERROR;
     }
 
