@@ -13,7 +13,7 @@ ngx_listening_t * ngx_create_listening(ngx_conf_t *cf, struct sockaddr *sockaddr
     struct sockaddr  *sa;
     u_char            text[NGX_SOCKADDR_STRLEN];
 
-    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+    printf("%s|%s|%d|%d|CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
     ls = ngx_array_push(&cf->cycle->listening);
     if (ls == NULL) 
@@ -45,21 +45,22 @@ ngx_listening_t * ngx_create_listening(ngx_conf_t *cf, struct sockaddr *sockaddr
             break;
 #endif
 #if (NGX_HAVE_UNIX_DOMAIN)
-    case AF_UNIX:
-        ls->addr_text_max_len = NGX_UNIX_ADDRSTRLEN;
-        len++;
-        break;
+        case AF_UNIX:
+            ls->addr_text_max_len = NGX_UNIX_ADDRSTRLEN;
+            len++;
+            break;
 #endif
-    case AF_INET:
-        ls->addr_text_max_len = NGX_INET_ADDRSTRLEN;
-        break;
-    default:
-        ls->addr_text_max_len = NGX_SOCKADDR_STRLEN;
-        break;
+        case AF_INET:
+            ls->addr_text_max_len = NGX_INET_ADDRSTRLEN;
+            break;
+        default:
+            ls->addr_text_max_len = NGX_SOCKADDR_STRLEN;
+            break;
     }
 
     ls->addr_text.data = ngx_pnalloc(cf->pool, len);
-    if (ls->addr_text.data == NULL) {
+    if (ls->addr_text.data == NULL) 
+    {
         return NULL;
     }
 
@@ -83,31 +84,34 @@ ngx_listening_t * ngx_create_listening(ngx_conf_t *cf, struct sockaddr *sockaddr
     return ls;
 }
 
-
-ngx_int_t
-ngx_clone_listening(ngx_conf_t *cf, ngx_listening_t *ls)
+ngx_int_t ngx_clone_listening(ngx_conf_t *cf, ngx_listening_t *ls)
 {
+    printf("%s|%s|%d|%d|CLONECLONECLONECLONECLONECLONECLONECLONECLONE\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
 #if (NGX_HAVE_REUSEPORT)
+    /// 系统编译后，到此处了
+    printf("%s|%s|%d|%d|CLONECLONECLONECLONECLONECLONECLONECLONECLONE\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
     ngx_int_t         n;
     ngx_core_conf_t  *ccf;
     ngx_listening_t   ols;
 
-    if (!ls->reuseport) {
+    if (!ls->reuseport) 
+    {
         return NGX_OK;
     }
 
     ols = *ls;
 
-    ccf = (ngx_core_conf_t *) ngx_get_conf(cf->cycle->conf_ctx,
-                                           ngx_core_module);
+    ccf = (ngx_core_conf_t *) ngx_get_conf(cf->cycle->conf_ctx, ngx_core_module);
 
-    for (n = 1; n < ccf->worker_processes; n++) {
-
+    for (n = 1; n < ccf->worker_processes; n++) 
+    {
         /* create a socket for each worker process */
 
         ls = ngx_array_push(&cf->cycle->listening);
-        if (ls == NULL) {
+        if (ls == NULL) 
+        {
             return NGX_ERROR;
         }
 
@@ -120,9 +124,7 @@ ngx_clone_listening(ngx_conf_t *cf, ngx_listening_t *ls)
     return NGX_OK;
 }
 
-
-ngx_int_t
-ngx_set_inherited_sockets(ngx_cycle_t *cycle)
+ngx_int_t ngx_set_inherited_sockets(ngx_cycle_t *cycle)
 {
     size_t                     len;
     ngx_uint_t                 i;
@@ -163,79 +165,70 @@ ngx_set_inherited_sockets(ngx_cycle_t *cycle)
             ls[i].socklen = sizeof(ngx_sockaddr_t);
         }
 
-        switch (ls[i].sockaddr->sa_family) {
-
+        switch (ls[i].sockaddr->sa_family) 
+        {
 #if (NGX_HAVE_INET6)
-        case AF_INET6:
-            ls[i].addr_text_max_len = NGX_INET6_ADDRSTRLEN;
-            len = NGX_INET6_ADDRSTRLEN + sizeof("[]:65535") - 1;
-            break;
+            case AF_INET6:
+                ls[i].addr_text_max_len = NGX_INET6_ADDRSTRLEN;
+                len = NGX_INET6_ADDRSTRLEN + sizeof("[]:65535") - 1;
+                break;
 #endif
 
 #if (NGX_HAVE_UNIX_DOMAIN)
-        case AF_UNIX:
-            ls[i].addr_text_max_len = NGX_UNIX_ADDRSTRLEN;
-            len = NGX_UNIX_ADDRSTRLEN;
-            break;
+            case AF_UNIX:
+                ls[i].addr_text_max_len = NGX_UNIX_ADDRSTRLEN;
+                len = NGX_UNIX_ADDRSTRLEN;
+                break;
 #endif
 
-        case AF_INET:
-            ls[i].addr_text_max_len = NGX_INET_ADDRSTRLEN;
-            len = NGX_INET_ADDRSTRLEN + sizeof(":65535") - 1;
-            break;
+            case AF_INET:
+                ls[i].addr_text_max_len = NGX_INET_ADDRSTRLEN;
+                len = NGX_INET_ADDRSTRLEN + sizeof(":65535") - 1;
+                break;
 
-        default:
-            ngx_log_error(NGX_LOG_CRIT, cycle->log, ngx_socket_errno,
-                          "the inherited socket #%d has "
-                          "an unsupported protocol family", ls[i].fd);
-            ls[i].ignore = 1;
-            continue;
+            default:
+                ngx_log_error(NGX_LOG_CRIT, cycle->log, ngx_socket_errno, "the inherited socket #%d has " "an unsupported protocol family", ls[i].fd);                
+                ls[i].ignore = 1;
+                continue;
         }
 
         ls[i].addr_text.data = ngx_pnalloc(cycle->pool, len);
-        if (ls[i].addr_text.data == NULL) {
+        if (ls[i].addr_text.data == NULL) 
+        {
             return NGX_ERROR;
         }
 
         len = ngx_sock_ntop(ls[i].sockaddr, ls[i].socklen, ls[i].addr_text.data, len, 1);
-        if (len == 0) {
+        if (len == 0) 
+        {
             return NGX_ERROR;
         }
 
         ls[i].addr_text.len = len;
 
-        ls[i].backlog = NGX_LISTEN_BACKLOG;
+        ls[i].backlog       = NGX_LISTEN_BACKLOG;
 
         olen = sizeof(int);
 
-        if (getsockopt(ls[i].fd, SOL_SOCKET, SO_TYPE, (void *) &ls[i].type,
-                       &olen)
-            == -1)
+        if (getsockopt(ls[i].fd, SOL_SOCKET, SO_TYPE, (void *) &ls[i].type, &olen) == -1)
         {
-            ngx_log_error(NGX_LOG_CRIT, cycle->log, ngx_socket_errno,
-                          "getsockopt(SO_TYPE) %V failed", &ls[i].addr_text);
+            ngx_log_error(NGX_LOG_CRIT, cycle->log, ngx_socket_errno, "getsockopt(SO_TYPE) %V failed", &ls[i].addr_text);
             ls[i].ignore = 1;
             continue;
         }
 
         olen = sizeof(int);
 
-        if (getsockopt(ls[i].fd, SOL_SOCKET, SO_RCVBUF, (void *) &ls[i].rcvbuf,
-                       &olen)
-            == -1)
+        if (getsockopt(ls[i].fd, SOL_SOCKET, SO_RCVBUF, (void *) &ls[i].rcvbuf, &olen) == -1)
         {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno,
-                          "getsockopt(SO_RCVBUF) %V failed, ignored",
-                          &ls[i].addr_text);
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno, "getsockopt(SO_RCVBUF) %V failed, ignored", &ls[i].addr_text);
 
             ls[i].rcvbuf = -1;
         }
 
         olen = sizeof(int);
 
-        if (getsockopt(ls[i].fd, SOL_SOCKET, SO_SNDBUF, (void *) &ls[i].sndbuf,
-                       &olen)
-            == -1)
+        if (getsockopt(ls[i].fd, SOL_SOCKET, SO_SNDBUF, (void *) &ls[i].sndbuf, &olen) == -1)
         {
             ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno,
                           "getsockopt(SO_SNDBUF) %V failed, ignored",
@@ -244,64 +237,35 @@ ngx_set_inherited_sockets(ngx_cycle_t *cycle)
             ls[i].sndbuf = -1;
         }
 
-#if 0
-        /* SO_SETFIB is currently a set only option */
-
-#if (NGX_HAVE_SETFIB)
-
-        olen = sizeof(int);
-
-        if (getsockopt(ls[i].fd, SOL_SOCKET, SO_SETFIB,
-                       (void *) &ls[i].setfib, &olen)
-            == -1)
-        {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno,
-                          "getsockopt(SO_SETFIB) %V failed, ignored",
-                          &ls[i].addr_text);
-
-            ls[i].setfib = -1;
-        }
-
-#endif
-#endif
-
 #if (NGX_HAVE_REUSEPORT)
-
         reuseport = 0;
-        olen = sizeof(int);
+        olen      = sizeof(int);
 
-        if (getsockopt(ls[i].fd, SOL_SOCKET, SO_REUSEPORT,
-                       (void *) &reuseport, &olen)
-            == -1)
+        if (getsockopt(ls[i].fd, SOL_SOCKET, SO_REUSEPORT, (void *) &reuseport, &olen) == -1)
         {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno,
-                          "getsockopt(SO_REUSEPORT) %V failed, ignored",
-                          &ls[i].addr_text);
-
-        } else {
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_socket_errno, "getsockopt(SO_REUSEPORT) %V failed, ignored", &ls[i].addr_text);
+        } 
+        else 
+        {
             ls[i].reuseport = reuseport ? 1 : 0;
         }
-
 #endif
 
-        if (ls[i].type != SOCK_STREAM) {
+        if (ls[i].type != SOCK_STREAM) 
+        {
             continue;
         }
 
 #if (NGX_HAVE_TCP_FASTOPEN)
-
         olen = sizeof(int);
 
-        if (getsockopt(ls[i].fd, IPPROTO_TCP, TCP_FASTOPEN,
-                       (void *) &ls[i].fastopen, &olen)
-            == -1)
+        if (getsockopt(ls[i].fd, IPPROTO_TCP, TCP_FASTOPEN, (void *) &ls[i].fastopen, &olen) == -1)
         {
             err = ngx_socket_errno;
 
-            if (err != NGX_EOPNOTSUPP && err != NGX_ENOPROTOOPT) {
-                ngx_log_error(NGX_LOG_NOTICE, cycle->log, err,
-                              "getsockopt(TCP_FASTOPEN) %V failed, ignored",
-                              &ls[i].addr_text);
+            if (err != NGX_EOPNOTSUPP && err != NGX_ENOPROTOOPT) 
+            {
+                ngx_log_error(NGX_LOG_NOTICE, cycle->log, err, "getsockopt(TCP_FASTOPEN) %V failed, ignored", &ls[i].addr_text);
             }
 
             ls[i].fastopen = -1;
@@ -329,17 +293,18 @@ ngx_set_inherited_sockets(ngx_cycle_t *cycle)
             continue;
         }
 
-        if (olen < sizeof(struct accept_filter_arg) || af.af_name[0] == '\0') {
+        if (olen < sizeof(struct accept_filter_arg) || af.af_name[0] == '\0') 
+        {
             continue;
         }
 
         ls[i].accept_filter = ngx_palloc(cycle->pool, 16);
-        if (ls[i].accept_filter == NULL) {
+        if (ls[i].accept_filter == NULL) 
+        {
             return NGX_ERROR;
         }
 
-        (void) ngx_cpystrn((u_char *) ls[i].accept_filter,
-                           (u_char *) af.af_name, 16);
+        (void) ngx_cpystrn((u_char *) ls[i].accept_filter, (u_char *) af.af_name, 16);
 #endif
 
 #if (NGX_HAVE_DEFERRED_ACCEPT && defined TCP_DEFER_ACCEPT)

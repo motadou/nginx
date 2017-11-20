@@ -1567,9 +1567,7 @@ ngx_http_cmp_conf_addrs(const void *one, const void *two)
     return 0;
 }
 
-
-static int ngx_libc_cdecl
-ngx_http_cmp_dns_wildcards(const void *one, const void *two)
+static int ngx_libc_cdecl ngx_http_cmp_dns_wildcards(const void *one, const void *two)
 {
     ngx_hash_key_t  *first, *second;
 
@@ -1579,9 +1577,7 @@ ngx_http_cmp_dns_wildcards(const void *one, const void *two)
     return ngx_dns_strcmp(first->key.data, second->key.data);
 }
 
-
-static ngx_int_t
-ngx_http_init_listening(ngx_conf_t *cf, ngx_http_conf_port_t *port)
+static ngx_int_t ngx_http_init_listening(ngx_conf_t *cf, ngx_http_conf_port_t *port)
 {
     ngx_uint_t                 i, last, bind_wildcard;
     ngx_listening_t           *ls;
@@ -1591,10 +1587,7 @@ ngx_http_init_listening(ngx_conf_t *cf, ngx_http_conf_port_t *port)
     addr = port->addrs.elts;
     last = port->addrs.nelts;
 
-
     printf("%s|%s|%d|%d|LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL\n", __FILE__, __FUNCTION__, __LINE__, getpid());
-
-
 
     /*
      * If there is a binding to an "*:port" then we need to bind() to
@@ -1602,55 +1595,62 @@ ngx_http_init_listening(ngx_conf_t *cf, ngx_http_conf_port_t *port)
      * have been already sorted: explicit bindings are on the start, then
      * implicit bindings go, and wildcard binding is in the end.
      */
-
-    if (addr[last - 1].opt.wildcard) {
+    if (addr[last - 1].opt.wildcard) 
+    {
         addr[last - 1].opt.bind = 1;
         bind_wildcard = 1;
-
-    } else {
+    } 
+    else 
+    {
         bind_wildcard = 0;
     }
 
     i = 0;
 
-    while (i < last) {
-
-        if (bind_wildcard && !addr[i].opt.bind) {
+    while (i < last) 
+    {
+        if (bind_wildcard && !addr[i].opt.bind) 
+        {
             i++;
             continue;
         }
 
         ls = ngx_http_add_listening(cf, &addr[i]);
-        if (ls == NULL) {
+        if (ls == NULL) 
+        {
             return NGX_ERROR;
         }
 
         hport = ngx_pcalloc(cf->pool, sizeof(ngx_http_port_t));
-        if (hport == NULL) {
+        if (hport == NULL) 
+        {
             return NGX_ERROR;
         }
 
-        ls->servers = hport;
+        ls->servers   = hport;
 
         hport->naddrs = i + 1;
 
-        switch (ls->sockaddr->sa_family) {
-
+        switch (ls->sockaddr->sa_family) 
+        {
 #if (NGX_HAVE_INET6)
-        case AF_INET6:
-            if (ngx_http_add_addrs6(cf, hport, addr) != NGX_OK) {
-                return NGX_ERROR;
-            }
-            break;
+            case AF_INET6:
+                if (ngx_http_add_addrs6(cf, hport, addr) != NGX_OK) 
+                {
+                    return NGX_ERROR;
+                }
+                break;
 #endif
-        default: /* AF_INET */
-            if (ngx_http_add_addrs(cf, hport, addr) != NGX_OK) {
-                return NGX_ERROR;
-            }
-            break;
+            default: /* AF_INET */
+                if (ngx_http_add_addrs(cf, hport, addr) != NGX_OK) 
+                {
+                    return NGX_ERROR;
+                }
+                break;
         }
 
-        if (ngx_clone_listening(cf, ls) != NGX_OK) {
+        if (ngx_clone_listening(cf, ls) != NGX_OK) 
+        {
             return NGX_ERROR;
         }
 
@@ -1688,19 +1688,6 @@ static ngx_listening_t * ngx_http_add_listening(ngx_conf_t *cf, ngx_http_conf_ad
     ls->logp = clcf->error_log;
     ls->log.data = &ls->addr_text;
     ls->log.handler = ngx_accept_log_error;
-
-#if (NGX_WIN32)
-    {
-    ngx_iocp_conf_t  *iocpcf = NULL;
-
-    if (ngx_get_conf(cf->cycle->conf_ctx, ngx_events_module)) {
-        iocpcf = ngx_event_get_conf(cf->cycle->conf_ctx, ngx_iocp_module);
-    }
-    if (iocpcf && iocpcf->acceptex_read) {
-        ls->post_accept_buffer_size = cscf->client_header_buffer_size;
-    }
-    }
-#endif
 
     ls->backlog = addr->opt.backlog;
     ls->rcvbuf = addr->opt.rcvbuf;
@@ -1740,42 +1727,37 @@ static ngx_listening_t * ngx_http_add_listening(ngx_conf_t *cf, ngx_http_conf_ad
     return ls;
 }
 
-
-static ngx_int_t
-ngx_http_add_addrs(ngx_conf_t *cf, ngx_http_port_t *hport,
-    ngx_http_conf_addr_t *addr)
+static ngx_int_t ngx_http_add_addrs(ngx_conf_t *cf, ngx_http_port_t *hport, ngx_http_conf_addr_t *addr)
 {
     ngx_uint_t                 i;
     ngx_http_in_addr_t        *addrs;
     struct sockaddr_in        *sin;
     ngx_http_virtual_names_t  *vn;
 
-    hport->addrs = ngx_pcalloc(cf->pool,
-                               hport->naddrs * sizeof(ngx_http_in_addr_t));
-    if (hport->addrs == NULL) {
+    hport->addrs = ngx_pcalloc(cf->pool, hport->naddrs * sizeof(ngx_http_in_addr_t));
+    if (hport->addrs == NULL) 
+    {
         return NGX_ERROR;
     }
 
     addrs = hport->addrs;
 
-    for (i = 0; i < hport->naddrs; i++) {
-
+    for (i = 0; i < hport->naddrs; i++) 
+    {
         sin = &addr[i].opt.sockaddr.sockaddr_in;
         addrs[i].addr = sin->sin_addr.s_addr;
         addrs[i].conf.default_server = addr[i].default_server;
+
 #if (NGX_HTTP_SSL)
         addrs[i].conf.ssl = addr[i].opt.ssl;
 #endif
+
 #if (NGX_HTTP_V2)
         addrs[i].conf.http2 = addr[i].opt.http2;
 #endif
         addrs[i].conf.proxy_protocol = addr[i].opt.proxy_protocol;
 
-        if (addr[i].hash.buckets == NULL
-            && (addr[i].wc_head == NULL
-                || addr[i].wc_head->hash.buckets == NULL)
-            && (addr[i].wc_tail == NULL
-                || addr[i].wc_tail->hash.buckets == NULL)
+        if (addr[i].hash.buckets == NULL  && (addr[i].wc_head == NULL || addr[i].wc_head->hash.buckets == NULL) && (addr[i].wc_tail == NULL || addr[i].wc_tail->hash.buckets == NULL)
 #if (NGX_PCRE)
             && addr[i].nregex == 0
 #endif
@@ -1785,13 +1767,14 @@ ngx_http_add_addrs(ngx_conf_t *cf, ngx_http_port_t *hport,
         }
 
         vn = ngx_palloc(cf->pool, sizeof(ngx_http_virtual_names_t));
-        if (vn == NULL) {
+        if (vn == NULL) 
+        {
             return NGX_ERROR;
         }
 
         addrs[i].conf.virtual_names = vn;
 
-        vn->names.hash = addr[i].hash;
+        vn->names.hash    = addr[i].hash;
         vn->names.wc_head = addr[i].wc_head;
         vn->names.wc_tail = addr[i].wc_tail;
 #if (NGX_PCRE)
@@ -1952,7 +1935,6 @@ char * ngx_http_types_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
     return NGX_CONF_OK;
 }
-
 
 char *
 ngx_http_merge_types(ngx_conf_t *cf, ngx_array_t **keys, ngx_hash_t *types_hash,

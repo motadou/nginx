@@ -1,10 +1,3 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #include <ngx_config.h>
 #include <ngx_core.h>
 
@@ -15,21 +8,22 @@ static ngx_int_t ngx_conf_handler(ngx_conf_t *cf, ngx_int_t last);
 static ngx_int_t ngx_conf_read_token(ngx_conf_t *cf);
 static void ngx_conf_flush_files(ngx_cycle_t *cycle);
 
+static ngx_command_t  ngx_conf_commands[] = 
+{
+    { 
+        ngx_string("include"),
+        NGX_ANY_CONF|NGX_CONF_TAKE1,
+        ngx_conf_include,
+        0,
+        0,
+        NULL 
+    },
 
-static ngx_command_t  ngx_conf_commands[] = {
-
-    { ngx_string("include"),
-      NGX_ANY_CONF|NGX_CONF_TAKE1,
-      ngx_conf_include,
-      0,
-      0,
-      NULL },
-
-      ngx_null_command
+    ngx_null_command
 };
 
-
-ngx_module_t  ngx_conf_module = {
+ngx_module_t  ngx_conf_module = 
+{
     NGX_MODULE_V1,
     NULL,                                  /* module context */
     ngx_conf_commands,                     /* module directives */
@@ -44,10 +38,9 @@ ngx_module_t  ngx_conf_module = {
     NGX_MODULE_V1_PADDING
 };
 
-
 /* The eight fixed arguments */
-
-static ngx_uint_t argument_number[] = {
+static ngx_uint_t argument_number[] = 
+{
     NGX_CONF_NOARGS,
     NGX_CONF_TAKE1,
     NGX_CONF_TAKE2,
@@ -58,9 +51,7 @@ static ngx_uint_t argument_number[] = {
     NGX_CONF_TAKE7
 };
 
-
-char *
-ngx_conf_param(ngx_conf_t *cf)
+char * ngx_conf_param(ngx_conf_t *cf)
 {
     char             *rv;
     ngx_str_t        *param;
@@ -236,7 +227,6 @@ char * ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename)
         {
             cf->conf_file->dump = NULL;
         }
-
     } 
     else if (cf->conf_file->file.fd != NGX_INVALID_FILE) 
     {
@@ -370,8 +360,6 @@ done:
     return NGX_CONF_OK;
 }
 
-
-
 static ngx_int_t ngx_conf_handler(ngx_conf_t *cf, ngx_int_t last)
 {
     char           *rv;
@@ -400,6 +388,10 @@ static ngx_int_t ngx_conf_handler(ngx_conf_t *cf, ngx_int_t last)
             {
                 continue;
             }
+
+
+            printf("%s|%s|%d|%s|%s\n", __FILE__, __FUNCTION__, __LINE__, name->data, cmd->name.data);
+
 
             if (ngx_strcmp(name->data, cmd->name.data) != 0) 
             {
@@ -433,7 +425,6 @@ static ngx_int_t ngx_conf_handler(ngx_conf_t *cf, ngx_int_t last)
             }
 
             /* is the directive's argument count right ? */
-
             if (!(cmd->type & NGX_CONF_ANY)) 
             {
                 if (cmd->type & NGX_CONF_FLAG) 
@@ -442,7 +433,6 @@ static ngx_int_t ngx_conf_handler(ngx_conf_t *cf, ngx_int_t last)
                     {
                         goto invalid;
                     }
-
                 } 
                 else if (cmd->type & NGX_CONF_1MORE) 
                 {
@@ -529,9 +519,7 @@ invalid:
     return NGX_ERROR;
 }
 
-
-static ngx_int_t
-ngx_conf_read_token(ngx_conf_t *cf)
+static ngx_int_t ngx_conf_read_token(ngx_conf_t *cf)
 {
     u_char      *start, ch, *src, *dst;
     off_t        file_size;
@@ -841,9 +829,7 @@ ngx_conf_read_token(ngx_conf_t *cf)
     }
 }
 
-
-char *
-ngx_conf_include(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
+char * ngx_conf_include(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
     char        *rv;
     ngx_int_t    n;
@@ -851,16 +837,17 @@ ngx_conf_include(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     ngx_glob_t   gl;
 
     value = cf->args->elts;
-    file = value[1];
+    file  = value[1];
 
     ngx_log_debug1(NGX_LOG_DEBUG_CORE, cf->log, 0, "include %s", file.data);
 
-    if (ngx_conf_full_name(cf->cycle, &file, 1) != NGX_OK) {
+    if (ngx_conf_full_name(cf->cycle, &file, 1) != NGX_OK) 
+    {
         return NGX_CONF_ERROR;
     }
 
-    if (strpbrk((char *) file.data, "*?[") == NULL) {
-
+    if (strpbrk((char *) file.data, "*?[") == NULL) 
+    {
         ngx_log_debug1(NGX_LOG_DEBUG_CORE, cf->log, 0, "include %s", file.data);
 
         return ngx_conf_parse(cf, &file);
@@ -869,12 +856,12 @@ ngx_conf_include(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     ngx_memzero(&gl, sizeof(ngx_glob_t));
 
     gl.pattern = file.data;
-    gl.log = cf->log;
-    gl.test = 1;
+    gl.log     = cf->log;
+    gl.test    = 1;
 
-    if (ngx_open_glob(&gl) != NGX_OK) {
-        ngx_conf_log_error(NGX_LOG_EMERG, cf, ngx_errno,
-                           ngx_open_glob_n " \"%s\" failed", file.data);
+    if (ngx_open_glob(&gl) != NGX_OK) 
+    {
+        ngx_conf_log_error(NGX_LOG_EMERG, cf, ngx_errno, ngx_open_glob_n " \"%s\" failed", file.data);
         return NGX_CONF_ERROR;
     }
 
@@ -1035,17 +1022,14 @@ ngx_conf_log_error(ngx_uint_t level, ngx_conf_t *cf, ngx_err_t err,
         return;
     }
 
-    if (cf->conf_file->file.fd == NGX_INVALID_FILE) {
-        ngx_log_error(level, cf->log, 0, "%*s in command line",
-                      p - errstr, errstr);
+    if (cf->conf_file->file.fd == NGX_INVALID_FILE) 
+    {
+        ngx_log_error(level, cf->log, 0, "%*s in command line", p - errstr, errstr);
         return;
     }
 
-    ngx_log_error(level, cf->log, 0, "%*s in %s:%ui",
-                  p - errstr, errstr,
-                  cf->conf_file->file.name.data, cf->conf_file->line);
+    ngx_log_error(level, cf->log, 0, "%*s in %s:%ui", p - errstr, errstr, cf->conf_file->file.name.data, cf->conf_file->line);
 }
-
 
 char * ngx_conf_set_flag_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
@@ -1064,21 +1048,22 @@ char * ngx_conf_set_flag_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
     value = cf->args->elts;
 
-    if (ngx_strcasecmp(value[1].data, (u_char *) "on") == 0) {
+    if (ngx_strcasecmp(value[1].data, (u_char *) "on") == 0) 
+    {
         *fp = 1;
-
-    } else if (ngx_strcasecmp(value[1].data, (u_char *) "off") == 0) {
+    } 
+    else if (ngx_strcasecmp(value[1].data, (u_char *) "off") == 0)
+    {
         *fp = 0;
-
-    } else {
-        ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-                     "invalid value \"%s\" in \"%s\" directive, "
-                     "it must be \"on\" or \"off\"",
-                     value[1].data, cmd->name.data);
+    }
+    else 
+    {
+        ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "invalid value \"%s\" in \"%s\" directive, "  "it must be \"on\" or \"off\"", value[1].data, cmd->name.data);
         return NGX_CONF_ERROR;
     }
 
-    if (cmd->post) {
+    if (cmd->post) 
+    {
         post = cmd->post;
         return post->post_handler(cf, post, fp);
     }
@@ -1086,9 +1071,7 @@ char * ngx_conf_set_flag_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     return NGX_CONF_OK;
 }
 
-
-char *
-ngx_conf_set_str_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
+char * ngx_conf_set_str_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
     char  *p = conf;
 
@@ -1097,15 +1080,17 @@ ngx_conf_set_str_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
     field = (ngx_str_t *) (p + cmd->offset);
 
-    if (field->data) {
+    if (field->data) 
+    {
         return "is duplicate";
     }
 
-    value = cf->args->elts;
+    value  = cf->args->elts;
 
     *field = value[1];
 
-    if (cmd->post) {
+    if (cmd->post) 
+    {
         post = cmd->post;
         return post->post_handler(cf, post, field);
     }
@@ -1113,9 +1098,7 @@ ngx_conf_set_str_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     return NGX_CONF_OK;
 }
 
-
-char *
-ngx_conf_set_str_array_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
+char * ngx_conf_set_str_array_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
     char  *p = conf;
 
@@ -1125,23 +1108,27 @@ ngx_conf_set_str_array_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
     a = (ngx_array_t **) (p + cmd->offset);
 
-    if (*a == NGX_CONF_UNSET_PTR) {
+    if (*a == NGX_CONF_UNSET_PTR) 
+    {
         *a = ngx_array_create(cf->pool, 4, sizeof(ngx_str_t));
-        if (*a == NULL) {
+        if (*a == NULL) 
+        {
             return NGX_CONF_ERROR;
         }
     }
 
     s = ngx_array_push(*a);
-    if (s == NULL) {
+    if (s == NULL) 
+    {
         return NGX_CONF_ERROR;
     }
 
     value = cf->args->elts;
 
-    *s = value[1];
+    *s    = value[1];
 
-    if (cmd->post) {
+    if (cmd->post) 
+    {
         post = cmd->post;
         return post->post_handler(cf, post, s);
     }
@@ -1149,9 +1136,7 @@ ngx_conf_set_str_array_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     return NGX_CONF_OK;
 }
 
-
-char *
-ngx_conf_set_keyval_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
+char * ngx_conf_set_keyval_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
     char  *p = conf;
 
@@ -1480,32 +1465,29 @@ ngx_conf_deprecated(ngx_conf_t *cf, void *post, void *data)
     return NGX_CONF_OK;
 }
 
-
-char *
-ngx_conf_check_num_bounds(ngx_conf_t *cf, void *post, void *data)
+char * ngx_conf_check_num_bounds(ngx_conf_t *cf, void *post, void *data)
 {
     ngx_conf_num_bounds_t  *bounds = post;
     ngx_int_t  *np = data;
 
-    if (bounds->high == -1) {
-        if (*np >= bounds->low) {
+    if (bounds->high == -1) 
+    {
+        if (*np >= bounds->low) 
+        {
             return NGX_CONF_OK;
         }
 
-        ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-                           "value must be equal to or greater than %i",
-                           bounds->low);
+        ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "value must be equal to or greater than %i", bounds->low);
 
         return NGX_CONF_ERROR;
     }
 
-    if (*np >= bounds->low && *np <= bounds->high) {
+    if (*np >= bounds->low && *np <= bounds->high) 
+    {
         return NGX_CONF_OK;
     }
 
-    ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
-                       "value must be between %i and %i",
-                       bounds->low, bounds->high);
+    ngx_conf_log_error(NGX_LOG_EMERG, cf, 0, "value must be between %i and %i", bounds->low, bounds->high);
 
     return NGX_CONF_ERROR;
 }

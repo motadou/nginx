@@ -43,9 +43,7 @@ ngx_array_destroy(ngx_array_t *a)
     }
 }
 
-
-void *
-ngx_array_push(ngx_array_t *a)
+void * ngx_array_push(ngx_array_t *a)
 {
     void        *elt, *new;
     size_t       size;

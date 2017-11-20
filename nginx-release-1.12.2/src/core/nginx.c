@@ -487,7 +487,8 @@ static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t *cycle)
 
     inherited = (u_char *) getenv(NGINX_VAR);
 
-    if (inherited == NULL) {
+    if (inherited == NULL) 
+    {
         return NGX_OK;
     }
 
@@ -498,12 +499,14 @@ static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t *cycle)
         return NGX_ERROR;
     }
 
-    for (p = inherited, v = p; *p; p++) {
-        if (*p == ':' || *p == ';') {
+    for (p = inherited, v = p; *p; p++) 
+    {
+        if (*p == ':' || *p == ';') 
+        {
             s = ngx_atoi(v, p - v);
-            if (s == NGX_ERROR) {
-                ngx_log_error(NGX_LOG_EMERG, cycle->log, 0,
-                              "invalid socket number \"%s\" in " NGINX_VAR
+            if (s == NGX_ERROR) 
+            {
+                ngx_log_error(NGX_LOG_EMERG, cycle->log, 0, "invalid socket number \"%s\" in " NGINX_VAR
                               " environment variable, ignoring the rest"
                               " of the variable", v);
                 break;
@@ -512,7 +515,8 @@ static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t *cycle)
             v = p + 1;
 
             ls = ngx_array_push(&cycle->listening);
-            if (ls == NULL) {
+            if (ls == NULL) 
+            {
                 return NGX_ERROR;
             }
 
@@ -522,10 +526,9 @@ static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t *cycle)
         }
     }
 
-    if (v != p) {
-        ngx_log_error(NGX_LOG_EMERG, cycle->log, 0,
-                      "invalid socket number \"%s\" in " NGINX_VAR
-                      " environment variable, ignoring", v);
+    if (v != p) 
+    {
+        ngx_log_error(NGX_LOG_EMERG, cycle->log, 0, "invalid socket number \"%s\" in " NGINX_VAR " environment variable, ignoring", v);
     }
 
     ngx_inherited = 1;
@@ -1047,8 +1050,8 @@ static void * ngx_core_module_create_conf(ngx_cycle_t *cycle)
      *     ccf->cpu_affinity = NULL;
      */
 
-    ccf->daemon = NGX_CONF_UNSET;
-    ccf->master = NGX_CONF_UNSET;
+    ccf->daemon           = NGX_CONF_UNSET;
+    ccf->master           = NGX_CONF_UNSET;
     ccf->timer_resolution = NGX_CONF_UNSET_MSEC;
     ccf->shutdown_timeout = NGX_CONF_UNSET_MSEC;
 
@@ -1082,11 +1085,7 @@ static char * ngx_core_module_init_conf(ngx_cycle_t *cycle, void *conf)
     ngx_conf_init_value(ccf->debug_points, 0);
 
 #if (NGX_HAVE_CPU_AFFINITY)
-
-    if (!ccf->cpu_affinity_auto
-        && ccf->cpu_affinity_n
-        && ccf->cpu_affinity_n != 1
-        && ccf->cpu_affinity_n != (ngx_uint_t) ccf->worker_processes)
+    if (!ccf->cpu_affinity_auto && ccf->cpu_affinity_n && ccf->cpu_affinity_n != 1 && ccf->cpu_affinity_n != (ngx_uint_t) ccf->worker_processes)
     {
         ngx_log_error(NGX_LOG_WARN, cycle->log, 0,
                       "the number of \"worker_processes\" is not equal to "
@@ -1119,15 +1118,16 @@ static char * ngx_core_module_init_conf(ngx_cycle_t *cycle, void *conf)
 
 #if !(NGX_WIN32)
 
-    if (ccf->user == (uid_t) NGX_CONF_UNSET_UINT && geteuid() == 0) {
+    if (ccf->user == (uid_t) NGX_CONF_UNSET_UINT && geteuid() == 0) 
+    {
         struct group   *grp;
         struct passwd  *pwd;
 
         ngx_set_errno(0);
         pwd = getpwnam(NGX_USER);
-        if (pwd == NULL) {
-            ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno,
-                          "getpwnam(\"" NGX_USER "\") failed");
+        if (pwd == NULL) 
+        {
+            ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno, "getpwnam(\"" NGX_USER "\") failed");
             return NGX_CONF_ERROR;
         }
 

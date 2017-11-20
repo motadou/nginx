@@ -1,42 +1,27 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #ifndef _NGX_CONFIG_H_INCLUDED_
 #define _NGX_CONFIG_H_INCLUDED_
 
-
 #include <ngx_auto_headers.h>
-
 
 #if defined __DragonFly__ && !defined __FreeBSD__
 #define __FreeBSD__        4
 #define __FreeBSD_version  480101
 #endif
 
-
 #if (NGX_FREEBSD)
 #include <ngx_freebsd_config.h>
-
 
 #elif (NGX_LINUX)
 #include <ngx_linux_config.h>
 
-
 #elif (NGX_SOLARIS)
 #include <ngx_solaris_config.h>
-
 
 #elif (NGX_DARWIN)
 #include <ngx_darwin_config.h>
 
-
 #elif (NGX_WIN32)
 #include <ngx_win32_config.h>
-
 
 #else /* POSIX */
 #include <ngx_posix_config.h>

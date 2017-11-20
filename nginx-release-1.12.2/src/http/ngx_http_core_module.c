@@ -1971,21 +1971,19 @@ ngx_http_send_header(ngx_http_request_t *r)
     return ngx_http_top_header_filter(r);
 }
 
-
-ngx_int_t
-ngx_http_output_filter(ngx_http_request_t *r, ngx_chain_t *in)
+ngx_int_t ngx_http_output_filter(ngx_http_request_t *r, ngx_chain_t *in)
 {
     ngx_int_t          rc;
     ngx_connection_t  *c;
 
     c = r->connection;
 
-    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0,
-                   "http output filter \"%V?%V\"", &r->uri, &r->args);
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, c->log, 0, "http output filter \"%V?%V\"", &r->uri, &r->args);
 
     rc = ngx_http_top_body_filter(r, in);
 
-    if (rc == NGX_ERROR) {
+    if (rc == NGX_ERROR) 
+    {
         /* NGX_ERROR may be returned by any filter */
         c->error = 1;
     }
@@ -1993,10 +1991,7 @@ ngx_http_output_filter(ngx_http_request_t *r, ngx_chain_t *in)
     return rc;
 }
 
-
-u_char *
-ngx_http_map_uri_to_path(ngx_http_request_t *r, ngx_str_t *path,
-    size_t *root_length, size_t reserved)
+u_char * ngx_http_map_uri_to_path(ngx_http_request_t *r, ngx_str_t *path, size_t *root_length, size_t reserved)
 {
     u_char                    *last;
     size_t                     alias;
@@ -2006,38 +2001,39 @@ ngx_http_map_uri_to_path(ngx_http_request_t *r, ngx_str_t *path,
 
     alias = clcf->alias;
 
-    if (alias && !r->valid_location) {
-        ngx_log_error(NGX_LOG_ALERT, r->connection->log, 0,
-                      "\"alias\" cannot be used in location \"%V\" "
-                      "where URI was rewritten", &clcf->name);
+    if (alias && !r->valid_location) 
+    {
+        ngx_log_error(NGX_LOG_ALERT, r->connection->log, 0, "\"alias\" cannot be used in location \"%V\" " "where URI was rewritten", &clcf->name);
         return NULL;
     }
 
-    if (clcf->root_lengths == NULL) {
-
+    if (clcf->root_lengths == NULL) 
+    {
         *root_length = clcf->root.len;
 
         path->len = clcf->root.len + reserved + r->uri.len - alias + 1;
 
         path->data = ngx_pnalloc(r->pool, path->len);
-        if (path->data == NULL) {
+        if (path->data == NULL) 
+        {
             return NULL;
         }
 
         last = ngx_copy(path->data, clcf->root.data, clcf->root.len);
 
-    } else {
-
-        if (alias == NGX_MAX_SIZE_T_VALUE) {
+    } 
+    else 
+    {
+        if (alias == NGX_MAX_SIZE_T_VALUE) 
+        {
             reserved += r->add_uri_to_alias ? r->uri.len + 1 : 1;
-
-        } else {
+        } 
+        else 
+        {
             reserved += r->uri.len - alias + 1;
         }
 
-        if (ngx_http_script_run(r, path, clcf->root_lengths->elts, reserved,
-                                clcf->root_values->elts)
-            == NULL)
+        if (ngx_http_script_run(r, path, clcf->root_lengths->elts, reserved, clcf->root_values->elts) == NULL)
         {
             return NULL;
         }
