@@ -292,9 +292,7 @@ again:
     return index;
 }
 
-
-static ngx_uint_t
-ngx_module_ctx_index(ngx_cycle_t *cycle, ngx_uint_t type, ngx_uint_t index)
+static ngx_uint_t ngx_module_ctx_index(ngx_cycle_t *cycle, ngx_uint_t type, ngx_uint_t index)
 {
     ngx_uint_t     i;
     ngx_module_t  *module;
@@ -303,10 +301,12 @@ again:
 
     /* find an unused ctx_index */
 
-    for (i = 0; cycle->modules[i]; i++) {
+    for (i = 0; cycle->modules[i]; i++) 
+    {
         module = cycle->modules[i];
 
-        if (module->type != type) {
+        if (module->type != type) 
+        {
             continue;
         }
 
@@ -317,10 +317,10 @@ again:
     }
 
     /* check previous cycle */
-
-    if (cycle->old_cycle && cycle->old_cycle->modules) {
-
-        for (i = 0; cycle->old_cycle->modules[i]; i++) {
+    if (cycle->old_cycle && cycle->old_cycle->modules) 
+    {
+        for (i = 0; cycle->old_cycle->modules[i]; i++) 
+        {
             module = cycle->old_cycle->modules[i];
 
             if (module->type != type) {

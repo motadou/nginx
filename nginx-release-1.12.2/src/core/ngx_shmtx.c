@@ -62,6 +62,8 @@ ngx_shmtx_destroy(ngx_shmtx_t *mtx)
 ngx_uint_t
 ngx_shmtx_trylock(ngx_shmtx_t *mtx)
 {
+    printf("%s|%s|%d|%d|SHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHM\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
     return (*mtx->lock == 0 && ngx_atomic_cmp_set(mtx->lock, 0, ngx_pid));
 }
 
@@ -246,6 +248,9 @@ ngx_uint_t
 ngx_shmtx_trylock(ngx_shmtx_t *mtx)
 {
     ngx_err_t  err;
+
+    printf("%s|%s|%d|%d|SHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHMSHM\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
 
     err = ngx_trylock_fd(mtx->fd);
 

@@ -200,13 +200,16 @@ void ngx_process_events_and_timers(ngx_cycle_t *cycle)
 
     if (ngx_use_accept_mutex) 
     {
+        printf("%s|%s|%d|%d|MUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEX\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
+
         if (ngx_accept_disabled > 0) 
         {
             ngx_accept_disabled--;
         } 
         else 
         {
-            printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+            printf("%s|%s|%d|%d|==================================================\n", __FILE__, __FUNCTION__, __LINE__, getpid());
             if (ngx_trylock_accept_mutex(cycle) == NGX_ERROR) 
             {
                 return;

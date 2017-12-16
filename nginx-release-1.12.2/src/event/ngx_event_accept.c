@@ -668,35 +668,35 @@ void ngx_event_recvmsg(ngx_event_t *ev)
 
 #endif
 
-
-ngx_int_t
-ngx_trylock_accept_mutex(ngx_cycle_t *cycle)
+ngx_int_t ngx_trylock_accept_mutex(ngx_cycle_t *cycle)
 {
-    if (ngx_shmtx_trylock(&ngx_accept_mutex)) {
+    if (ngx_shmtx_trylock(&ngx_accept_mutex)) 
+    {
+        ngx_log_debug0(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "accept mutex locked");
 
-        ngx_log_debug0(NGX_LOG_DEBUG_EVENT, cycle->log, 0,
-                       "accept mutex locked");
-
-        if (ngx_accept_mutex_held && ngx_accept_events == 0) {
+        if (ngx_accept_mutex_held && ngx_accept_events == 0) 
+        {
             return NGX_OK;
         }
 
-        if (ngx_enable_accept_events(cycle) == NGX_ERROR) {
+        if (ngx_enable_accept_events(cycle) == NGX_ERROR) 
+        {
             ngx_shmtx_unlock(&ngx_accept_mutex);
             return NGX_ERROR;
         }
 
-        ngx_accept_events = 0;
+        ngx_accept_events     = 0;
         ngx_accept_mutex_held = 1;
 
         return NGX_OK;
     }
 
-    ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0,
-                   "accept mutex lock failed: %ui", ngx_accept_mutex_held);
+    ngx_log_debug1(NGX_LOG_DEBUG_EVENT, cycle->log, 0, "accept mutex lock failed: %ui", ngx_accept_mutex_held);
 
-    if (ngx_accept_mutex_held) {
-        if (ngx_disable_accept_events(cycle, 0) == NGX_ERROR) {
+    if (ngx_accept_mutex_held) 
+    {
+        if (ngx_disable_accept_events(cycle, 0) == NGX_ERROR) 
+        {
             return NGX_ERROR;
         }
 
@@ -706,9 +706,7 @@ ngx_trylock_accept_mutex(ngx_cycle_t *cycle)
     return NGX_OK;
 }
 
-
-static ngx_int_t
-ngx_enable_accept_events(ngx_cycle_t *cycle)
+static ngx_int_t ngx_enable_accept_events(ngx_cycle_t *cycle)
 {
     ngx_uint_t         i;
     ngx_listening_t   *ls;

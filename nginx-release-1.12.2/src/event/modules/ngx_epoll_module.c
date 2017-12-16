@@ -358,7 +358,7 @@ static ngx_int_t ngx_epoll_init(ngx_cycle_t *cycle, ngx_msec_t timer)
 
     nevents = epcf->events;
 
-    ngx_io  = ngx_os_io;
+    ngx_io            = ngx_os_io;
 
     ngx_event_actions = ngx_epoll_module_ctx.actions;
 
@@ -633,9 +633,7 @@ static ngx_int_t ngx_epoll_add_event(ngx_event_t *ev, ngx_int_t event, ngx_uint_
     return NGX_OK;
 }
 
-
-static ngx_int_t
-ngx_epoll_del_event(ngx_event_t *ev, ngx_int_t event, ngx_uint_t flags)
+static ngx_int_t ngx_epoll_del_event(ngx_event_t *ev, ngx_int_t event, ngx_uint_t flags)
 {
     int                  op;
     uint32_t             prev;
@@ -691,25 +689,22 @@ ngx_epoll_del_event(ngx_event_t *ev, ngx_int_t event, ngx_uint_t flags)
     return NGX_OK;
 }
 
-
-static ngx_int_t
-ngx_epoll_add_connection(ngx_connection_t *c)
+static ngx_int_t ngx_epoll_add_connection(ngx_connection_t *c)
 {
     struct epoll_event  ee;
 
-    ee.events = EPOLLIN|EPOLLOUT|EPOLLET|EPOLLRDHUP;
+    ee.events   = EPOLLIN|EPOLLOUT|EPOLLET|EPOLLRDHUP;
     ee.data.ptr = (void *) ((uintptr_t) c | c->read->instance);
 
-    ngx_log_debug2(NGX_LOG_DEBUG_EVENT, c->log, 0,
-                   "epoll add connection: fd:%d ev:%08XD", c->fd, ee.events);
+    ngx_log_debug2(NGX_LOG_DEBUG_EVENT, c->log, 0, "epoll add connection: fd:%d ev:%08XD", c->fd, ee.events);
 
-    if (epoll_ctl(ep, EPOLL_CTL_ADD, c->fd, &ee) == -1) {
-        ngx_log_error(NGX_LOG_ALERT, c->log, ngx_errno,
-                      "epoll_ctl(EPOLL_CTL_ADD, %d) failed", c->fd);
+    if (epoll_ctl(ep, EPOLL_CTL_ADD, c->fd, &ee) == -1) 
+    {
+        ngx_log_error(NGX_LOG_ALERT, c->log, ngx_errno, "epoll_ctl(EPOLL_CTL_ADD, %d) failed", c->fd);
         return NGX_ERROR;
     }
 
-    c->read->active = 1;
+    c->read->active  = 1;
     c->write->active = 1;
 
     return NGX_OK;
@@ -1040,7 +1035,7 @@ static char * ngx_epoll_init_conf(ngx_cycle_t *cycle, void *conf)
 {
     ngx_epoll_conf_t *epcf = conf;
 
-    ngx_conf_init_uint_value(epcf->events, 512);
+    ngx_conf_init_uint_value(epcf->events,       512);
     ngx_conf_init_uint_value(epcf->aio_requests, 32);
 
     return NGX_CONF_OK;

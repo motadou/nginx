@@ -313,10 +313,12 @@ void ngx_single_process_cycle(ngx_cycle_t *cycle)
 
         ngx_process_events_and_timers(cycle);
 
-        if (ngx_terminate || ngx_quit) {
-
-            for (i = 0; cycle->modules[i]; i++) {
-                if (cycle->modules[i]->exit_process) {
+        if (ngx_terminate || ngx_quit) 
+        {
+            for (i = 0; cycle->modules[i]; i++) 
+            {
+                if (cycle->modules[i]->exit_process) 
+                {
                     cycle->modules[i]->exit_process(cycle);
                 }
             }
@@ -324,12 +326,14 @@ void ngx_single_process_cycle(ngx_cycle_t *cycle)
             ngx_master_process_exit(cycle);
         }
 
-        if (ngx_reconfigure) {
+        if (ngx_reconfigure) 
+        {
             ngx_reconfigure = 0;
             ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "reconfiguring");
 
             cycle = ngx_init_cycle(cycle);
-            if (cycle == NULL) {
+            if (cycle == NULL) 
+            {
                 cycle = (ngx_cycle_t *) ngx_cycle;
                 continue;
             }
@@ -337,14 +341,14 @@ void ngx_single_process_cycle(ngx_cycle_t *cycle)
             ngx_cycle = cycle;
         }
 
-        if (ngx_reopen) {
+        if (ngx_reopen) 
+        {
             ngx_reopen = 0;
             ngx_log_error(NGX_LOG_NOTICE, cycle->log, 0, "reopening logs");
             ngx_reopen_files(cycle, (ngx_uid_t) -1);
         }
     }
 }
-
 
 static void ngx_start_worker_processes(ngx_cycle_t *cycle, ngx_int_t n, ngx_int_t type)
 {
@@ -369,9 +373,7 @@ static void ngx_start_worker_processes(ngx_cycle_t *cycle, ngx_int_t n, ngx_int_
     }
 }
 
-
-static void
-ngx_start_cache_manager_processes(ngx_cycle_t *cycle, ngx_uint_t respawn)
+static void ngx_start_cache_manager_processes(ngx_cycle_t *cycle, ngx_uint_t respawn)
 {
     ngx_uint_t       i, manager, loader;
     ngx_path_t     **path;
@@ -818,11 +820,13 @@ static void ngx_worker_process_init(ngx_cycle_t *cycle, ngx_int_t worker)
         }
     }
 
-    if (ccf->rlimit_core != NGX_CONF_UNSET) {
+    if (ccf->rlimit_core != NGX_CONF_UNSET) 
+    {
         rlmt.rlim_cur = (rlim_t) ccf->rlimit_core;
         rlmt.rlim_max = (rlim_t) ccf->rlimit_core;
 
-        if (setrlimit(RLIMIT_CORE, &rlmt) == -1) {
+        if (setrlimit(RLIMIT_CORE, &rlmt) == -1) 
+        {
             ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
                           "setrlimit(RLIMIT_CORE, %O) failed",
                           ccf->rlimit_core);
@@ -986,13 +990,13 @@ static void ngx_worker_process_exit(ngx_cycle_t *cycle)
 
     ngx_exit_log = *ngx_log_get_file_log(ngx_cycle->log);
 
-    ngx_exit_log_file.fd = ngx_exit_log.file->fd;
-    ngx_exit_log.file    = &ngx_exit_log_file;
-    ngx_exit_log.next    = NULL;
-    ngx_exit_log.writer  = NULL;
+    ngx_exit_log_file.fd   = ngx_exit_log.file->fd;
+    ngx_exit_log.file      = &ngx_exit_log_file;
+    ngx_exit_log.next      = NULL;
+    ngx_exit_log.writer    = NULL;
 
-    ngx_exit_cycle.log = &ngx_exit_log;
-    ngx_exit_cycle.files = ngx_cycle->files;
+    ngx_exit_cycle.log     = &ngx_exit_log;
+    ngx_exit_cycle.files   = ngx_cycle->files;
     ngx_exit_cycle.files_n = ngx_cycle->files_n;
     ngx_cycle = &ngx_exit_cycle;
 
