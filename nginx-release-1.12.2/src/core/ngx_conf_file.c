@@ -60,7 +60,8 @@ char * ngx_conf_param(ngx_conf_t *cf)
 
     param = &cf->cycle->conf_param;
 
-    if (param->len == 0) {
+    if (param->len == 0) 
+    {
         return NGX_CONF_OK;
     }
 
@@ -68,10 +69,10 @@ char * ngx_conf_param(ngx_conf_t *cf)
 
     ngx_memzero(&b, sizeof(ngx_buf_t));
 
-    b.start = param->data;
-    b.pos = param->data;
-    b.last = param->data + param->len;
-    b.end = b.last;
+    b.start     = param->data;
+    b.pos       = param->data;
+    b.last      = param->data + param->len;
+    b.end       = b.last;
     b.temporary = 1;
 
     conf_file.file.fd = NGX_INVALID_FILE;
@@ -389,9 +390,7 @@ static ngx_int_t ngx_conf_handler(ngx_conf_t *cf, ngx_int_t last)
                 continue;
             }
 
-
             printf("%s|%s|%d|%s|%s\n", __FILE__, __FUNCTION__, __LINE__, name->data, cmd->name.data);
-
 
             if (ngx_strcmp(name->data, cmd->name.data) != 0) 
             {

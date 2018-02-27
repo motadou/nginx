@@ -36,8 +36,7 @@
 #define NGX_CONF_TAKE23      (NGX_CONF_TAKE2|NGX_CONF_TAKE3)
 
 #define NGX_CONF_TAKE123     (NGX_CONF_TAKE1|NGX_CONF_TAKE2|NGX_CONF_TAKE3)
-#define NGX_CONF_TAKE1234    (NGX_CONF_TAKE1|NGX_CONF_TAKE2|NGX_CONF_TAKE3   \
-                              |NGX_CONF_TAKE4)
+#define NGX_CONF_TAKE1234    (NGX_CONF_TAKE1|NGX_CONF_TAKE2|NGX_CONF_TAKE3|NGX_CONF_TAKE4)
 
 #define NGX_CONF_ARGS_NUMBER 0x000000ff
 #define NGX_CONF_BLOCK       0x00000100
@@ -95,7 +94,6 @@ struct ngx_open_file_s
     void                 *data;
 };
 
-
 typedef struct {
     ngx_file_t            file;
     ngx_buf_t            *buffer;
@@ -133,10 +131,10 @@ struct ngx_conf_s {
 };
 
 
-typedef char *(*ngx_conf_post_handler_pt) (ngx_conf_t *cf,
-    void *data, void *conf);
+typedef char *(*ngx_conf_post_handler_pt) (ngx_conf_t *cf, void *data, void *conf);
 
-typedef struct {
+typedef struct 
+{
     ngx_conf_post_handler_pt  post_handler;
 } ngx_conf_post_t;
 
@@ -271,17 +269,14 @@ char *ngx_conf_parse(ngx_conf_t *cf, ngx_str_t *filename);
 char *ngx_conf_include(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
 
-ngx_int_t ngx_conf_full_name(ngx_cycle_t *cycle, ngx_str_t *name,
-    ngx_uint_t conf_prefix);
+ngx_int_t ngx_conf_full_name(ngx_cycle_t *cycle, ngx_str_t *name, ngx_uint_t conf_prefix);
 ngx_open_file_t *ngx_conf_open_file(ngx_cycle_t *cycle, ngx_str_t *name);
-void ngx_cdecl ngx_conf_log_error(ngx_uint_t level, ngx_conf_t *cf,
-    ngx_err_t err, const char *fmt, ...);
+void ngx_cdecl ngx_conf_log_error(ngx_uint_t level, ngx_conf_t *cf, ngx_err_t err, const char *fmt, ...);
 
 
 char *ngx_conf_set_flag_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_conf_set_str_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
-char *ngx_conf_set_str_array_slot(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
+char *ngx_conf_set_str_array_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_conf_set_keyval_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_conf_set_num_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 char *ngx_conf_set_size_slot(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);

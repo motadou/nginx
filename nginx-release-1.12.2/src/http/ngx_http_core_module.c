@@ -178,36 +178,43 @@ static ngx_str_t  ngx_http_gzip_private = ngx_string("private");
 
 #endif
 
+static ngx_command_t  ngx_http_core_commands[] = 
+{
+    { 
+        ngx_string("variables_hash_max_size"),
+        NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
+        ngx_conf_set_num_slot,
+        NGX_HTTP_MAIN_CONF_OFFSET,
+        offsetof(ngx_http_core_main_conf_t, variables_hash_max_size),
+        NULL 
+    },
 
-static ngx_command_t  ngx_http_core_commands[] = {
+    { 
+        ngx_string("variables_hash_bucket_size"),
+        NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
+        ngx_conf_set_num_slot,
+        NGX_HTTP_MAIN_CONF_OFFSET,
+        offsetof(ngx_http_core_main_conf_t, variables_hash_bucket_size),
+        NULL 
+    },
 
-    { ngx_string("variables_hash_max_size"),
-      NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
-      ngx_conf_set_num_slot,
-      NGX_HTTP_MAIN_CONF_OFFSET,
-      offsetof(ngx_http_core_main_conf_t, variables_hash_max_size),
-      NULL },
+    { 
+        ngx_string("server_names_hash_max_size"),
+        NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
+        ngx_conf_set_num_slot,
+        NGX_HTTP_MAIN_CONF_OFFSET,
+        offsetof(ngx_http_core_main_conf_t, server_names_hash_max_size),
+        NULL 
+    },
 
-    { ngx_string("variables_hash_bucket_size"),
-      NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
-      ngx_conf_set_num_slot,
-      NGX_HTTP_MAIN_CONF_OFFSET,
-      offsetof(ngx_http_core_main_conf_t, variables_hash_bucket_size),
-      NULL },
-
-    { ngx_string("server_names_hash_max_size"),
-      NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
-      ngx_conf_set_num_slot,
-      NGX_HTTP_MAIN_CONF_OFFSET,
-      offsetof(ngx_http_core_main_conf_t, server_names_hash_max_size),
-      NULL },
-
-    { ngx_string("server_names_hash_bucket_size"),
-      NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
-      ngx_conf_set_num_slot,
-      NGX_HTTP_MAIN_CONF_OFFSET,
-      offsetof(ngx_http_core_main_conf_t, server_names_hash_bucket_size),
-      NULL },
+    { 
+        ngx_string("server_names_hash_bucket_size"),
+        NGX_HTTP_MAIN_CONF|NGX_CONF_TAKE1,
+        ngx_conf_set_num_slot,
+        NGX_HTTP_MAIN_CONF_OFFSET,
+        offsetof(ngx_http_core_main_conf_t, server_names_hash_bucket_size),
+        NULL 
+    },
 
     { ngx_string("server"),
       NGX_HTTP_MAIN_CONF|NGX_CONF_BLOCK|NGX_CONF_NOARGS,
@@ -272,12 +279,14 @@ static ngx_command_t  ngx_http_core_commands[] = {
       offsetof(ngx_http_core_srv_conf_t, underscores_in_headers),
       NULL },
 
-    { ngx_string("location"),
-      NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_BLOCK|NGX_CONF_TAKE12,
-      ngx_http_core_location,
-      NGX_HTTP_SRV_CONF_OFFSET,
-      0,
-      NULL },
+    { 
+        ngx_string("location"),
+        NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_BLOCK|NGX_CONF_TAKE12,
+        ngx_http_core_location,
+        NGX_HTTP_SRV_CONF_OFFSET,
+        0,
+        NULL 
+    },
 
     { ngx_string("listen"),
       NGX_HTTP_SRV_CONF|NGX_CONF_1MORE,

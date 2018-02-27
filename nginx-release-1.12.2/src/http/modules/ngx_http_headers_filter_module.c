@@ -90,27 +90,28 @@ static ngx_http_set_header_t  ngx_http_set_headers[] = {
 };
 
 
-static ngx_command_t  ngx_http_headers_filter_commands[] = {
+static ngx_command_t  ngx_http_headers_filter_commands[] = 
+{
+    { 
+        ngx_string("expires"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF|NGX_CONF_TAKE12,
+        ngx_http_headers_expires,
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        NULL
+    },
 
-    { ngx_string("expires"),
-      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
-                        |NGX_CONF_TAKE12,
-      ngx_http_headers_expires,
-      NGX_HTTP_LOC_CONF_OFFSET,
-      0,
-      NULL},
+    { 
+        ngx_string("add_header"),
+        NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF|NGX_CONF_TAKE23,
+        ngx_http_headers_add,
+        NGX_HTTP_LOC_CONF_OFFSET,
+        0,
+        NULL
+    },
 
-    { ngx_string("add_header"),
-      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_HTTP_LIF_CONF
-                        |NGX_CONF_TAKE23,
-      ngx_http_headers_add,
-      NGX_HTTP_LOC_CONF_OFFSET,
-      0,
-      NULL},
-
-      ngx_null_command
+    ngx_null_command
 };
-
 
 static ngx_http_module_t  ngx_http_headers_filter_module_ctx = {
     NULL,                                  /* preconfiguration */
@@ -666,9 +667,7 @@ ngx_http_headers_expires(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     return NGX_CONF_OK;
 }
 
-
-static char *
-ngx_http_headers_add(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
+static char * ngx_http_headers_add(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
     ngx_http_headers_conf_t *hcf = conf;
 
@@ -680,16 +679,18 @@ ngx_http_headers_add(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
     value = cf->args->elts;
 
-    if (hcf->headers == NULL) {
-        hcf->headers = ngx_array_create(cf->pool, 1,
-                                        sizeof(ngx_http_header_val_t));
-        if (hcf->headers == NULL) {
+    if (hcf->headers == NULL)
+    {
+        hcf->headers = ngx_array_create(cf->pool, 1, sizeof(ngx_http_header_val_t));
+        if (hcf->headers == NULL) 
+        {
             return NGX_CONF_ERROR;
         }
     }
 
     hv = ngx_array_push(hcf->headers);
-    if (hv == NULL) {
+    if (hv == NULL) 
+    {
         return NGX_CONF_ERROR;
     }
 
@@ -699,7 +700,8 @@ ngx_http_headers_add(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     hv->always = 0;
 
     set = ngx_http_set_headers;
-    for (i = 0; set[i].name.len; i++) {
+    for (i = 0; set[i].name.len; i++) 
+    {
         if (ngx_strcasecmp(value[1].data, set[i].name.data) != 0) {
             continue;
         }

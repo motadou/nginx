@@ -8,16 +8,15 @@
 #define NGX_CYCLE_POOL_SIZE     NGX_DEFAULT_POOL_SIZE
 #endif
 
-
 #define NGX_DEBUG_POINTS_STOP   1
 #define NGX_DEBUG_POINTS_ABORT  2
-
 
 typedef struct ngx_shm_zone_s  ngx_shm_zone_t;
 
 typedef ngx_int_t (*ngx_shm_zone_init_pt) (ngx_shm_zone_t *zone, void *data);
 
-struct ngx_shm_zone_s {
+struct ngx_shm_zone_s 
+{
     void                     *data;
     ngx_shm_t                 shm;
     ngx_shm_zone_init_pt      init;
@@ -110,19 +109,25 @@ typedef struct {
 
 #define ngx_is_init_cycle(cycle)  (cycle->conf_ctx == NULL)
 
-
 ngx_cycle_t *ngx_init_cycle(ngx_cycle_t *old_cycle);
-ngx_int_t ngx_create_pidfile(ngx_str_t *name, ngx_log_t *log);
-void ngx_delete_pidfile(ngx_cycle_t *cycle);
-ngx_int_t ngx_signal_process(ngx_cycle_t *cycle, char *sig);
-void ngx_reopen_files(ngx_cycle_t *cycle, ngx_uid_t user);
-char **ngx_set_environment(ngx_cycle_t *cycle, ngx_uint_t *last);
-ngx_pid_t ngx_exec_new_binary(ngx_cycle_t *cycle, char *const *argv);
-ngx_cpuset_t *ngx_get_cpu_affinity(ngx_uint_t n);
-ngx_shm_zone_t *ngx_shared_memory_add(ngx_conf_t *cf, ngx_str_t *name,
-    size_t size, void *tag);
-void ngx_set_shutdown_timer(ngx_cycle_t *cycle);
 
+ngx_int_t ngx_create_pidfile(ngx_str_t *name, ngx_log_t *log);
+
+void ngx_delete_pidfile(ngx_cycle_t *cycle);
+
+ngx_int_t ngx_signal_process(ngx_cycle_t *cycle, char *sig);
+
+void ngx_reopen_files(ngx_cycle_t *cycle, ngx_uid_t user);
+
+char **ngx_set_environment(ngx_cycle_t *cycle, ngx_uint_t *last);
+
+ngx_pid_t ngx_exec_new_binary(ngx_cycle_t *cycle, char *const *argv);
+
+ngx_cpuset_t *ngx_get_cpu_affinity(ngx_uint_t n);
+
+ngx_shm_zone_t *ngx_shared_memory_add(ngx_conf_t *cf, ngx_str_t *name, size_t size, void *tag);
+
+void ngx_set_shutdown_timer(ngx_cycle_t *cycle);
 
 extern volatile ngx_cycle_t  *ngx_cycle;
 extern ngx_array_t            ngx_old_cycles;
@@ -130,6 +135,5 @@ extern ngx_module_t           ngx_core_module;
 extern ngx_uint_t             ngx_test_config;
 extern ngx_uint_t             ngx_dump_config;
 extern ngx_uint_t             ngx_quiet_mode;
-
 
 #endif /* _NGX_CYCLE_H_INCLUDED_ */

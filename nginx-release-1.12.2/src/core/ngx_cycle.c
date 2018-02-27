@@ -383,9 +383,10 @@ ngx_cycle_t * ngx_init_cycle(ngx_cycle_t *old_cycle)
 
     for (i = 0; /* void */ ; i++) 
     {
-
-        if (i >= part->nelts) {
-            if (part->next == NULL) {
+        if (i >= part->nelts) 
+        {
+            if (part->next == NULL) 
+            {
                 break;
             }
             part = part->next;

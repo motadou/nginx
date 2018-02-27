@@ -1415,8 +1415,7 @@ ngx_set_cpu_affinity(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 }
 
 
-ngx_cpuset_t *
-ngx_get_cpu_affinity(ngx_uint_t n)
+ngx_cpuset_t * ngx_get_cpu_affinity(ngx_uint_t n)
 {
 #if (NGX_HAVE_CPU_AFFINITY)
     ngx_uint_t        i, j;
@@ -1468,9 +1467,7 @@ ngx_get_cpu_affinity(ngx_uint_t n)
 #endif
 }
 
-
-static char *
-ngx_set_worker_processes(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
+static char * ngx_set_worker_processes(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 {
     ngx_str_t        *value;
     ngx_core_conf_t  *ccf;
@@ -1483,14 +1480,16 @@ ngx_set_worker_processes(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
 
     value = cf->args->elts;
 
-    if (ngx_strcmp(value[1].data, "auto") == 0) {
+    if (ngx_strcmp(value[1].data, "auto") == 0) 
+    {
         ccf->worker_processes = ngx_ncpu;
         return NGX_CONF_OK;
     }
 
     ccf->worker_processes = ngx_atoi(value[1].data, value[1].len);
 
-    if (ccf->worker_processes == NGX_ERROR) {
+    if (ccf->worker_processes == NGX_ERROR) 
+    {
         return "invalid value";
     }
 
