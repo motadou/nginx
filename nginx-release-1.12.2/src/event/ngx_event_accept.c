@@ -2,9 +2,10 @@
 #include <ngx_core.h>
 #include <ngx_event.h>
 
-static ngx_int_t ngx_enable_accept_events(ngx_cycle_t *cycle);
-static ngx_int_t ngx_disable_accept_events(ngx_cycle_t *cycle, ngx_uint_t all);
-static void ngx_close_accepted_connection(ngx_connection_t *c);
+static ngx_int_t ngx_enable_accept_events(ngx_cycle_t * cycle);
+static ngx_int_t ngx_disable_accept_events(ngx_cycle_t * cycle, ngx_uint_t all);
+static void      ngx_close_accepted_connection(ngx_connection_t *c);
+
 #if (NGX_DEBUG)
 static void ngx_debug_accepted_connection(ngx_event_conf_t *ecf, ngx_connection_t *c);
 #endif
@@ -21,6 +22,7 @@ void ngx_event_accept(ngx_event_t *ev)
     ngx_listening_t   *ls;
     ngx_connection_t  *c, *lc;
     ngx_event_conf_t  *ecf;
+
 #if (NGX_HAVE_ACCEPT4)
     static ngx_uint_t  use_accept4 = 1;
 #endif

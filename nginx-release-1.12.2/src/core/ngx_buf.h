@@ -1,17 +1,8 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #ifndef _NGX_BUF_H_INCLUDED_
 #define _NGX_BUF_H_INCLUDED_
 
-
 #include <ngx_config.h>
 #include <ngx_core.h>
-
 
 typedef void *            ngx_buf_tag_t;
 
@@ -55,12 +46,10 @@ struct ngx_buf_s {
     /* STUB */ int   num;
 };
 
-
 struct ngx_chain_s {
     ngx_buf_t    *buf;
     ngx_chain_t  *next;
 };
-
 
 typedef struct {
     ngx_int_t    num;
@@ -72,8 +61,7 @@ typedef struct ngx_output_chain_ctx_s  ngx_output_chain_ctx_t;
 
 typedef ngx_int_t (*ngx_output_chain_filter_pt)(void *ctx, ngx_chain_t *in);
 
-typedef void (*ngx_output_chain_aio_pt)(ngx_output_chain_ctx_t *ctx,
-    ngx_file_t *file);
+typedef void (*ngx_output_chain_aio_pt)(ngx_output_chain_ctx_t *ctx, ngx_file_t *file);
 
 struct ngx_output_chain_ctx_s {
     ngx_buf_t                   *buf;
@@ -152,16 +140,15 @@ ngx_chain_t *ngx_alloc_chain_link(ngx_pool_t *pool);
     cl->next = pool->chain;                                                  \
     pool->chain = cl
 
-
-
 ngx_int_t ngx_output_chain(ngx_output_chain_ctx_t *ctx, ngx_chain_t *in);
+
 ngx_int_t ngx_chain_writer(void *ctx, ngx_chain_t *in);
 
-ngx_int_t ngx_chain_add_copy(ngx_pool_t *pool, ngx_chain_t **chain,
-    ngx_chain_t *in);
+ngx_int_t ngx_chain_add_copy(ngx_pool_t *pool, ngx_chain_t **chain,  ngx_chain_t *in);
+
 ngx_chain_t *ngx_chain_get_free_buf(ngx_pool_t *p, ngx_chain_t **free);
-void ngx_chain_update_chains(ngx_pool_t *p, ngx_chain_t **free,
-    ngx_chain_t **busy, ngx_chain_t **out, ngx_buf_tag_t tag);
+
+void ngx_chain_update_chains(ngx_pool_t *p, ngx_chain_t **free, ngx_chain_t **busy, ngx_chain_t **out, ngx_buf_tag_t tag);
 
 off_t ngx_chain_coalesce_file(ngx_chain_t **in, off_t limit);
 
