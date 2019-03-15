@@ -210,7 +210,7 @@ void ngx_event_accept(ngx_event_t *ev)
         } 
         else 
         {
-            if (!(ngx_event_flags & NGX_USE_IOCP_EVENT)) 
+            if (!(ngx_event_flags & NGX_USE_IOCP_EVENT))
             {
                 if (ngx_nonblocking(s) == -1) 
                 {
@@ -319,14 +319,16 @@ void ngx_event_accept(ngx_event_t *ev)
         }
 #endif
 
-        if (ngx_add_conn && (ngx_event_flags & NGX_USE_EPOLL_EVENT) == 0) {
-            if (ngx_add_conn(c) == NGX_ERROR) {
+        if (ngx_add_conn && (ngx_event_flags & NGX_USE_EPOLL_EVENT) == 0) 
+        {
+            if (ngx_add_conn(c) == NGX_ERROR) 
+            {
                 ngx_close_accepted_connection(c);
                 return;
             }
         }
 
-        log->data = NULL;
+        log->data    = NULL;
         log->handler = NULL;
 
         ls->handler(c);
@@ -336,7 +338,8 @@ void ngx_event_accept(ngx_event_t *ev)
             ev->available--;
         }
 
-    } while (ev->available);
+    } 
+    while (ev->available);
 }
 
 

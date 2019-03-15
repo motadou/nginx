@@ -210,7 +210,7 @@ static char        *ngx_signal;
 
 static char **ngx_os_environ;
 
-int ngx_cdecl main(int argc, char *const *argv)
+int ngx_cdecl main(int argc, char * const * argv)
 {
     ngx_buf_t        *b;
     ngx_log_t        *log;
@@ -226,7 +226,7 @@ int ngx_cdecl main(int argc, char *const *argv)
         return 1;
     }
 
-    if (ngx_get_options(argc, argv) != NGX_OK) 
+    if (ngx_get_options(argc, argv) != NGX_OK)
     {
         return 1;
     }
@@ -423,7 +423,8 @@ static void ngx_show_version_info(void)
 {
     ngx_write_stderr("nginx version: " NGINX_VER_BUILD NGX_LINEFEED);
 
-    if (ngx_show_help) {
+    if (ngx_show_help) 
+    {
         ngx_write_stderr(
             "Usage: nginx [-?hvVtTq] [-s signal] [-c filename] "
                          "[-p prefix] [-g directives]" NGX_LINEFEED
@@ -453,8 +454,8 @@ static void ngx_show_version_info(void)
         );
     }
 
-    if (ngx_show_configure) {
-
+    if (ngx_show_configure) 
+    {
 #ifdef NGX_COMPILER
         ngx_write_stderr("built by " NGX_COMPILER NGX_LINEFEED);
 #endif
@@ -479,7 +480,7 @@ static void ngx_show_version_info(void)
     }
 }
 
-static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t *cycle)
+static ngx_int_t ngx_add_inherited_sockets(ngx_cycle_t * cycle)
 {
     u_char           *p, *v, *inherited;
     ngx_int_t         s;
@@ -648,13 +649,12 @@ tz_found:
     return env;
 }
 
-
-static void
-ngx_cleanup_environment(void *data)
+static void ngx_cleanup_environment(void *data)
 {
     char  **env = data;
 
-    if (environ == env) {
+    if (environ == env) 
+    {
 
         /*
          * if the environment is still used, as it happens on exit,
@@ -739,10 +739,7 @@ ngx_exec_new_binary(ngx_cycle_t *cycle, char *const *argv)
 
     if (ngx_rename_file(ccf->pid.data, ccf->oldpid.data) == NGX_FILE_ERROR) 
     {
-        ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                      ngx_rename_file_n " %s to %s failed "
-                      "before executing new binary process \"%s\"",
-                      ccf->pid.data, ccf->oldpid.data, argv[0]);
+        ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, ngx_rename_file_n " %s to %s failed before executing new binary process \"%s\"", ccf->pid.data, ccf->oldpid.data, argv[0]);
 
         ngx_free(env);
         ngx_free(var);
@@ -756,9 +753,7 @@ ngx_exec_new_binary(ngx_cycle_t *cycle, char *const *argv)
     {
         if (ngx_rename_file(ccf->oldpid.data, ccf->pid.data) == NGX_FILE_ERROR)
         {
-            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                          ngx_rename_file_n " %s back to %s failed after "
-                          "an attempt to execute new binary process \"%s\"",
+            ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, ngx_rename_file_n " %s back to %s failed after an attempt to execute new binary process \"%s\"",
                           ccf->oldpid.data, ccf->pid.data, argv[0]);
         }
     }

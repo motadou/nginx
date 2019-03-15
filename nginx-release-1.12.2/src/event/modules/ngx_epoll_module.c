@@ -590,19 +590,23 @@ static ngx_int_t ngx_epoll_add_event(ngx_event_t *ev, ngx_int_t event, ngx_uint_
         events = EPOLLIN|EPOLLRDHUP;
 #endif
 
-    } else {
-        e = c->read;
+    } 
+    else 
+    {
+        e    = c->read;
         prev = EPOLLIN|EPOLLRDHUP;
 #if (NGX_WRITE_EVENT != EPOLLOUT)
         events = EPOLLOUT;
 #endif
     }
 
-    if (e->active) {
+    if (e->active) 
+    {
         op = EPOLL_CTL_MOD;
         events |= prev;
-
-    } else {
+    } 
+    else 
+    {
         op = EPOLL_CTL_ADD;
     }
 
@@ -647,40 +651,44 @@ static ngx_int_t ngx_epoll_del_event(ngx_event_t *ev, ngx_int_t event, ngx_uint_
      * before the closing the file descriptor
      */
 
-    if (flags & NGX_CLOSE_EVENT) {
+    if (flags & NGX_CLOSE_EVENT) 
+    {
         ev->active = 0;
         return NGX_OK;
     }
 
     c = ev->data;
 
-    if (event == NGX_READ_EVENT) {
-        e = c->write;
+    if (event == NGX_READ_EVENT) 
+    {
+        e    = c->write;
         prev = EPOLLOUT;
-
-    } else {
-        e = c->read;
+    } 
+    else 
+    {
+        e    = c->read;
         prev = EPOLLIN|EPOLLRDHUP;
     }
 
-    if (e->active) {
-        op = EPOLL_CTL_MOD;
-        ee.events = prev | (uint32_t) flags;
+    if (e->active) 
+    {
+        op          = EPOLL_CTL_MOD;
+        ee.events   = prev | (uint32_t) flags;
         ee.data.ptr = (void *) ((uintptr_t) c | ev->instance);
-
-    } else {
-        op = EPOLL_CTL_DEL;
-        ee.events = 0;
+    } 
+    else 
+    {
+        op          = EPOLL_CTL_DEL;
+        ee.events   = 0;
         ee.data.ptr = NULL;
     }
 
-    ngx_log_debug3(NGX_LOG_DEBUG_EVENT, ev->log, 0,
-                   "epoll del event: fd:%d op:%d ev:%08XD",
-                   c->fd, op, ee.events);
+    ngx_log_debug3(NGX_LOG_DEBUG_EVENT, ev->log, 0, "epoll del event: fd:%d op:%d ev:%08XD", c->fd, op, ee.events);
 
-    if (epoll_ctl(ep, op, c->fd, &ee) == -1) {
-        ngx_log_error(NGX_LOG_ALERT, ev->log, ngx_errno,
-                      "epoll_ctl(%d, %d) failed", op, c->fd);
+    if (epoll_ctl(ep, op, c->fd, &ee) == -1) 
+    {
+        ngx_log_error(NGX_LOG_ALERT, ev->log, ngx_errno, "epoll_ctl(%d, %d) failed", op, c->fd);
+
         return NGX_ERROR;
     }
 
@@ -710,9 +718,7 @@ static ngx_int_t ngx_epoll_add_connection(ngx_connection_t *c)
     return NGX_OK;
 }
 
-
-static ngx_int_t
-ngx_epoll_del_connection(ngx_connection_t *c, ngx_uint_t flags)
+static ngx_int_t ngx_epoll_del_connection(ngx_connection_t *c, ngx_uint_t flags)
 {
     int                 op;
     struct epoll_event  ee;
@@ -722,15 +728,14 @@ ngx_epoll_del_connection(ngx_connection_t *c, ngx_uint_t flags)
      * it from its queue so we do not need to delete explicitly the event
      * before the closing the file descriptor
      */
-
-    if (flags & NGX_CLOSE_EVENT) {
+    if (flags & NGX_CLOSE_EVENT) 
+    {
         c->read->active = 0;
         c->write->active = 0;
         return NGX_OK;
     }
 
-    ngx_log_debug1(NGX_LOG_DEBUG_EVENT, c->log, 0,
-                   "epoll del connection: fd:%d", c->fd);
+    ngx_log_debug1(NGX_LOG_DEBUG_EVENT, c->log, 0, "epoll del connection: fd:%d", c->fd);
 
     op = EPOLL_CTL_DEL;
     ee.events = 0;
@@ -748,19 +753,17 @@ ngx_epoll_del_connection(ngx_connection_t *c, ngx_uint_t flags)
     return NGX_OK;
 }
 
-
 #if (NGX_HAVE_EVENTFD)
-
-static ngx_int_t
-ngx_epoll_notify(ngx_event_handler_pt handler)
+static ngx_int_t ngx_epoll_notify(ngx_event_handler_pt handler)
 {
     static uint64_t inc = 1;
 
     notify_event.data = handler;
 
-    if ((size_t) write(notify_fd, &inc, sizeof(uint64_t)) != sizeof(uint64_t)) {
-        ngx_log_error(NGX_LOG_ALERT, notify_event.log, ngx_errno,
-                      "write() to eventfd %d failed", notify_fd);
+    if ((size_t) write(notify_fd, &inc, sizeof(uint64_t)) != sizeof(uint64_t)) 
+    {
+        ngx_log_error(NGX_LOG_ALERT, notify_event.log, ngx_errno, "write() to eventfd %d failed", notify_fd);
+
         return NGX_ERROR;
     }
 
@@ -797,7 +800,7 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, 
         ngx_time_update();
     }
 
-    if (err) 
+    if (err)
     {
         if (err == NGX_EINTR) 
         {
@@ -815,6 +818,7 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, 
         }
 
         ngx_log_error(level, cycle->log, err, "epoll_wait() failed");
+
         return NGX_ERROR;
     }
 
@@ -922,7 +926,6 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, 
             }
 
             printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
-
         }
     }
 

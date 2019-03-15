@@ -119,11 +119,9 @@ typedef enum {
     NGX_STREAM_LOG_PHASE
 } ngx_stream_phases;
 
-
 typedef struct ngx_stream_phase_handler_s  ngx_stream_phase_handler_t;
 
-typedef ngx_int_t (*ngx_stream_phase_handler_pt)(ngx_stream_session_t *s,
-    ngx_stream_phase_handler_t *ph);
+typedef ngx_int_t (*ngx_stream_phase_handler_pt)(ngx_stream_session_t *s, ngx_stream_phase_handler_t *ph);
 typedef ngx_int_t (*ngx_stream_handler_pt)(ngx_stream_session_t *s);
 typedef void (*ngx_stream_content_handler_pt)(ngx_stream_session_t *s);
 
