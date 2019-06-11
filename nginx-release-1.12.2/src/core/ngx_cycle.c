@@ -974,6 +974,9 @@ ngx_int_t ngx_create_pidfile(ngx_str_t *name, ngx_log_t *log)
     file.name = *name;
     file.log  = log;
 
+    printf("%s|%s|%d ****:%s\n", __FILE__, __FUNCTION__, __LINE__, file.name.data);
+
+
     create    = ngx_test_config ? NGX_FILE_CREATE_OR_OPEN : NGX_FILE_TRUNCATE;
 
     file.fd   = ngx_open_file(file.name.data, NGX_FILE_RDWR, create, NGX_FILE_DEFAULT_ACCESS);

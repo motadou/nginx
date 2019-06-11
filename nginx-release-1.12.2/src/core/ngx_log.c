@@ -1,25 +1,14 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #include <ngx_config.h>
 #include <ngx_core.h>
-
 
 static char *ngx_error_log(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 static char *ngx_log_set_levels(ngx_conf_t *cf, ngx_log_t *log);
 static void ngx_log_insert(ngx_log_t *log, ngx_log_t *new_log);
 
-
 #if (NGX_DEBUG)
 
-static void ngx_log_memory_writer(ngx_log_t *log, ngx_uint_t level,
-    u_char *buf, size_t len);
+static void ngx_log_memory_writer(ngx_log_t *log, ngx_uint_t level, u_char *buf, size_t len);
 static void ngx_log_memory_cleanup(void *data);
-
 
 typedef struct {
     u_char        *start;
@@ -92,15 +81,11 @@ static const char *debug_levels[] = {
 
 #if (NGX_HAVE_VARIADIC_MACROS)
 
-void
-ngx_log_error_core(ngx_uint_t level, ngx_log_t *log, ngx_err_t err,
-    const char *fmt, ...)
+void ngx_log_error_core(ngx_uint_t level, ngx_log_t *log, ngx_err_t err, const char *fmt, ...)
 
 #else
 
-void
-ngx_log_error_core(ngx_uint_t level, ngx_log_t *log, ngx_err_t err,
-    const char *fmt, va_list args)
+void ngx_log_error_core(ngx_uint_t level, ngx_log_t *log, ngx_err_t err, const char *fmt, va_list args)
 
 #endif
 {
@@ -313,14 +298,12 @@ ngx_log_errno(u_char *buf, u_char *last, ngx_err_t err)
     return buf;
 }
 
-
-ngx_log_t *
-ngx_log_init(u_char *prefix)
+ngx_log_t * ngx_log_init(u_char *prefix)
 {
     u_char  *p, *name;
     size_t   nlen, plen;
 
-    ngx_log.file = &ngx_log_file;
+    ngx_log.file      = &ngx_log_file;
     ngx_log.log_level = NGX_LOG_NOTICE;
 
     name = (u_char *) NGX_ERROR_LOG_PATH;
@@ -329,10 +312,10 @@ ngx_log_init(u_char *prefix)
      * we use ngx_strlen() here since BCC warns about
      * condition is always false and unreachable code
      */
-
     nlen = ngx_strlen(name);
 
-    if (nlen == 0) {
+    if (nlen == 0) 
+    {
         ngx_log_file.fd = ngx_stderr;
         return &ngx_log;
     }
@@ -344,11 +327,12 @@ ngx_log_init(u_char *prefix)
 #else
     if (name[0] != '/') {
 #endif
-
-        if (prefix) {
+        if (prefix) 
+        {
             plen = ngx_strlen(prefix);
-
-        } else {
+        } 
+        else 
+        {
 #ifdef NGX_PREFIX
             prefix = (u_char *) NGX_PREFIX;
             plen = ngx_strlen(prefix);
@@ -357,7 +341,8 @@ ngx_log_init(u_char *prefix)
 #endif
         }
 
-        if (plen) {
+        if (plen)
+        {
             name = malloc(plen + nlen + 2);
             if (name == NULL) {
                 return NULL;
@@ -375,9 +360,7 @@ ngx_log_init(u_char *prefix)
         }
     }
 
-    ngx_log_file.fd = ngx_open_file(name, NGX_FILE_APPEND,
-                                    NGX_FILE_CREATE_OR_OPEN,
-                                    NGX_FILE_DEFAULT_ACCESS);
+    ngx_log_file.fd = ngx_open_file(name, NGX_FILE_APPEND, NGX_FILE_CREATE_OR_OPEN, NGX_FILE_DEFAULT_ACCESS);
 
     if (ngx_log_file.fd == NGX_INVALID_FILE) {
         ngx_log_stderr(ngx_errno,

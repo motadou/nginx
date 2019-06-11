@@ -235,7 +235,7 @@ int ngx_cdecl main(int argc, char * const * argv)
     {
         ngx_show_version_info();
 
-        if (!ngx_test_config) 
+        if (!ngx_test_config)
         {
             return 0;
         }
@@ -346,6 +346,8 @@ int ngx_cdecl main(int argc, char * const * argv)
         return 0;
     }
 
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
+
     if (ngx_signal) 
     {
         return ngx_signal_process(cycle, ngx_signal);
@@ -356,15 +358,19 @@ int ngx_cdecl main(int argc, char * const * argv)
 
     ccf       = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
 
-    if (ccf->master && (ngx_process == NGX_PROCESS_SINGLE) )
+    if (ccf->master && (ngx_process == NGX_PROCESS_SINGLE))
     {
         ngx_process = NGX_PROCESS_MASTER;
     }
+
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
 
     if (ngx_init_signals(cycle->log) != NGX_OK) 
     {
         return 1;
     }
+
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
 
     if (!ngx_inherited && ccf->daemon) 
     {
@@ -405,13 +411,13 @@ int ngx_cdecl main(int argc, char * const * argv)
 
     if (ngx_process == NGX_PROCESS_SINGLE) 
     {
-        printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+        printf("%s|%s|%d|%d**********************************************************\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
         ngx_single_process_cycle(cycle);
     } 
     else
     {
-        printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+        printf("%s|%s|%d|%d**********************************************************\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
         ngx_master_process_cycle(cycle);
     }
@@ -812,12 +818,14 @@ static ngx_int_t ngx_get_options(int argc, char *const *argv)
                     break;
 
                 case 'p':
-                    if (*p) {
+                    if (*p) 
+                    {
                         ngx_prefix = p;
                         goto next;
                     }
 
-                    if (argv[++i]) {
+                    if (argv[++i]) 
+                    {
                         ngx_prefix = (u_char *) argv[i];
                         goto next;
                     }
@@ -826,12 +834,14 @@ static ngx_int_t ngx_get_options(int argc, char *const *argv)
                     return NGX_ERROR;
 
                 case 'c':
-                    if (*p) {
+                    if (*p) 
+                    {
                         ngx_conf_file = p;
                         goto next;
                     }
 
-                    if (argv[++i]) {
+                    if (argv[++i])
+                    {
                         ngx_conf_file = (u_char *) argv[i];
                         goto next;
                     }
@@ -840,12 +850,14 @@ static ngx_int_t ngx_get_options(int argc, char *const *argv)
                     return NGX_ERROR;
 
                 case 'g':
-                    if (*p) {
+                    if (*p) 
+                    {
                         ngx_conf_params = p;
                         goto next;
                     }
 
-                    if (argv[++i]) {
+                    if (argv[++i]) 
+                    {
                         ngx_conf_params = (u_char *) argv[i];
                         goto next;
                     }
@@ -854,21 +866,21 @@ static ngx_int_t ngx_get_options(int argc, char *const *argv)
                     return NGX_ERROR;
 
                 case 's':
-                    if (*p) {
+                    if (*p) 
+                    {
                         ngx_signal = (char *) p;
-
-                    } else if (argv[++i]) {
+                    } 
+                    else if (argv[++i]) 
+                    {
                         ngx_signal = argv[i];
-
-                    } else {
+                    } 
+                    else 
+                    {
                         ngx_log_stderr(0, "option \"-s\" requires parameter");
                         return NGX_ERROR;
                     }
 
-                    if (ngx_strcmp(ngx_signal, "stop") == 0
-                        || ngx_strcmp(ngx_signal, "quit") == 0
-                        || ngx_strcmp(ngx_signal, "reopen") == 0
-                        || ngx_strcmp(ngx_signal, "reload") == 0)
+                    if (ngx_strcmp(ngx_signal, "stop") == 0 || ngx_strcmp(ngx_signal, "quit") == 0 || ngx_strcmp(ngx_signal, "reopen") == 0 || ngx_strcmp(ngx_signal, "reload") == 0)
                     {
                         ngx_process = NGX_PROCESS_SIGNALLER;
                         goto next;
@@ -880,11 +892,10 @@ static ngx_int_t ngx_get_options(int argc, char *const *argv)
                 default:
                     ngx_log_stderr(0, "invalid option: \"%c\"", *(p - 1));
                     return NGX_ERROR;
-                }
+            }
         }
 
     next:
-
         continue;
     }
 
@@ -895,8 +906,8 @@ static ngx_int_t ngx_save_argv(ngx_cycle_t *cycle, int argc, char *const *argv)
 {
 #if (NGX_FREEBSD)
     ngx_os_argv = (char **) argv;
-    ngx_argc = argc;
-    ngx_argv = (char **) argv;
+    ngx_argc    = argc;
+    ngx_argv    = (char **) argv;
 
 #else
     size_t     len;
@@ -930,20 +941,21 @@ static ngx_int_t ngx_save_argv(ngx_cycle_t *cycle, int argc, char *const *argv)
     return NGX_OK;
 }
 
-
-static ngx_int_t
-ngx_process_options(ngx_cycle_t *cycle)
+static ngx_int_t ngx_process_options(ngx_cycle_t * cycle)
 {
     u_char  *p;
     size_t   len;
 
-    if (ngx_prefix) {
+    if (ngx_prefix) 
+    {
         len = ngx_strlen(ngx_prefix);
-        p = ngx_prefix;
+        p   = ngx_prefix;
 
-        if (len && !ngx_path_separator(p[len - 1])) {
+        if (len && !ngx_path_separator(p[len - 1]))
+        {
             p = ngx_pnalloc(cycle->pool, len + 1);
-            if (p == NULL) {
+            if (p == NULL)
+            {
                 return NGX_ERROR;
             }
 
@@ -951,21 +963,22 @@ ngx_process_options(ngx_cycle_t *cycle)
             p[len++] = '/';
         }
 
-        cycle->conf_prefix.len = len;
+        cycle->conf_prefix.len  = len;
         cycle->conf_prefix.data = p;
-        cycle->prefix.len = len;
-        cycle->prefix.data = p;
-
-    } else {
-
+        cycle->prefix.len       = len;
+        cycle->prefix.data      = p;
+    } 
+    else 
+    {
 #ifndef NGX_PREFIX
-
         p = ngx_pnalloc(cycle->pool, NGX_MAX_PATH);
-        if (p == NULL) {
+        if (p == NULL) 
+        {
             return NGX_ERROR;
         }
 
-        if (ngx_getcwd(p, NGX_MAX_PATH) == 0) {
+        if (ngx_getcwd(p, NGX_MAX_PATH) == 0) 
+        {
             ngx_log_stderr(ngx_errno, "[emerg]: " ngx_getcwd_n " failed");
             return NGX_ERROR;
         }
@@ -974,11 +987,10 @@ ngx_process_options(ngx_cycle_t *cycle)
 
         p[len++] = '/';
 
-        cycle->conf_prefix.len = len;
+        cycle->conf_prefix.len  = len;
         cycle->conf_prefix.data = p;
-        cycle->prefix.len = len;
-        cycle->prefix.data = p;
-
+        cycle->prefix.len       = len;
+        cycle->prefix.data      = p;
 #else
 
 #ifdef NGX_CONF_PREFIX
@@ -991,35 +1003,39 @@ ngx_process_options(ngx_cycle_t *cycle)
 #endif
     }
 
-    if (ngx_conf_file) {
-        cycle->conf_file.len = ngx_strlen(ngx_conf_file);
+    if (ngx_conf_file) 
+    {
+        cycle->conf_file.len  = ngx_strlen(ngx_conf_file);
         cycle->conf_file.data = ngx_conf_file;
-
-    } else {
+    }
+    else 
+    {
         ngx_str_set(&cycle->conf_file, NGX_CONF_PATH);
     }
 
-    if (ngx_conf_full_name(cycle, &cycle->conf_file, 0) != NGX_OK) {
+    if (ngx_conf_full_name(cycle, &cycle->conf_file, 0) != NGX_OK) 
+    {
         return NGX_ERROR;
     }
 
-    for (p = cycle->conf_file.data + cycle->conf_file.len - 1;
-         p > cycle->conf_file.data;
-         p--)
+    for (p = cycle->conf_file.data + cycle->conf_file.len - 1; p > cycle->conf_file.data; p--)
     {
-        if (ngx_path_separator(*p)) {
-            cycle->conf_prefix.len = p - ngx_cycle->conf_file.data + 1;
+        if (ngx_path_separator(*p)) 
+        {
+            cycle->conf_prefix.len  = p - ngx_cycle->conf_file.data + 1;
             cycle->conf_prefix.data = ngx_cycle->conf_file.data;
             break;
         }
     }
 
-    if (ngx_conf_params) {
-        cycle->conf_param.len = ngx_strlen(ngx_conf_params);
+    if (ngx_conf_params) 
+    {
+        cycle->conf_param.len  = ngx_strlen(ngx_conf_params);
         cycle->conf_param.data = ngx_conf_params;
     }
 
-    if (ngx_test_config) {
+    if (ngx_test_config) 
+    {
         cycle->log->log_level = NGX_LOG_INFO;
     }
 

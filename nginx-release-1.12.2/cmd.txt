@@ -1,5 +1,6 @@
 
-./configure --without-http_rewrite_module
+sh ./configure --without-http_rewrite_module
 
-sudo /home/kevintian/nginx/objs/nginx -c /home/kevintian/nginx/conf/nginx.conf
+/home/kevintian/nginx/objs/nginx -c /home/kevintian/nginx/conf/nginx.conf
 
+/home/kevintian/nginx/objs/nginx -c /home/kevintian/nginx/conf/nginx.conf -s stop
