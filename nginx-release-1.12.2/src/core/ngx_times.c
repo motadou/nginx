@@ -54,19 +54,17 @@ static u_char            cached_http_log_iso8601[NGX_TIME_SLOTS]
 static u_char            cached_syslog_time[NGX_TIME_SLOTS]
                                     [sizeof("Sep 28 12:00:00")];
 
-
 static char  *week[] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
 static char  *months[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-void
-ngx_time_init(void)
+void ngx_time_init(void)
 {
-    ngx_cached_err_log_time.len = sizeof("1970/09/28 12:00:00") - 1;
-    ngx_cached_http_time.len = sizeof("Mon, 28 Sep 1970 06:00:00 GMT") - 1;
-    ngx_cached_http_log_time.len = sizeof("28/Sep/1970:12:00:00 +0600") - 1;
+    ngx_cached_err_log_time.len     = sizeof("1970/09/28 12:00:00") - 1;
+    ngx_cached_http_time.len        = sizeof("Mon, 28 Sep 1970 06:00:00 GMT") - 1;
+    ngx_cached_http_log_time.len    = sizeof("28/Sep/1970:12:00:00 +0600") - 1;
     ngx_cached_http_log_iso8601.len = sizeof("1970-09-28T12:00:00+06:00") - 1;
-    ngx_cached_syslog_time.len = sizeof("Sep 28 12:00:00") - 1;
+    ngx_cached_syslog_time.len      = sizeof("Sep 28 12:00:00") - 1;
 
     ngx_cached_time = &cached_time[0];
 

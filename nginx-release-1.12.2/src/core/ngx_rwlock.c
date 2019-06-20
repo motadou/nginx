@@ -1,20 +1,10 @@
-
-/*
- * Copyright (C) Ruslan Ermilov
- * Copyright (C) Nginx, Inc.
- */
-
-
 #include <ngx_config.h>
 #include <ngx_core.h>
 
-
 #if (NGX_HAVE_ATOMIC_OPS)
-
 
 #define NGX_RWLOCK_SPIN   2048
 #define NGX_RWLOCK_WLOCK  ((ngx_atomic_uint_t) -1)
-
 
 void
 ngx_rwlock_wlock(ngx_atomic_t *lock)

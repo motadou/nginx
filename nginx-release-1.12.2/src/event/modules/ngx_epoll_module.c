@@ -86,13 +86,12 @@ struct io_event {
 #endif
 #endif /* NGX_TEST_BUILD_EPOLL */
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 typedef struct 
 {
     ngx_uint_t  events;
     ngx_uint_t  aio_requests;
 } ngx_epoll_conf_t;
-
 
 static ngx_int_t ngx_epoll_init(ngx_cycle_t *cycle, ngx_msec_t timer);
 #if (NGX_HAVE_EVENTFD)
@@ -167,7 +166,6 @@ static ngx_command_t  ngx_epoll_commands[] =
 
     ngx_null_command
 };
-
 
 static ngx_event_module_t  ngx_epoll_module_ctx = {
     &epoll_name,
@@ -316,19 +314,23 @@ static ngx_int_t ngx_epoll_init(ngx_cycle_t *cycle, ngx_msec_t timer)
 {
     ngx_epoll_conf_t  *epcf;
 
+    printf("%s|%s|%d|PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP:%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
     epcf = ngx_event_get_conf(cycle->conf_ctx, ngx_epoll_module);
 
-    if (ep == -1) {
+    if (ep == -1) 
+    {
         ep = epoll_create(cycle->connection_n / 2);
 
-        if (ep == -1) {
-            ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno,
-                          "epoll_create() failed");
+        if (ep == -1) 
+        {
+            ngx_log_error(NGX_LOG_EMERG, cycle->log, ngx_errno, "epoll_create() failed");
             return NGX_ERROR;
         }
 
 #if (NGX_HAVE_EVENTFD)
-        if (ngx_epoll_notify_init(cycle->log) != NGX_OK) {
+        if (ngx_epoll_notify_init(cycle->log) != NGX_OK) 
+        {
             ngx_epoll_module_ctx.actions.notify = NULL;
         }
 #endif
@@ -457,15 +459,14 @@ ngx_epoll_notify_handler(ngx_event_t *ev)
 
 #if (NGX_HAVE_EPOLLRDHUP)
 
-static void
-ngx_epoll_test_rdhup(ngx_cycle_t *cycle)
+static void ngx_epoll_test_rdhup(ngx_cycle_t *cycle)
 {
     int                 s[2], events;
     struct epoll_event  ee;
 
-    if (socketpair(AF_UNIX, SOCK_STREAM, 0, s) == -1) {
-        ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno,
-                      "socketpair() failed");
+    if (socketpair(AF_UNIX, SOCK_STREAM, 0, s) == -1) 
+    {
+        ngx_log_error(NGX_LOG_ALERT, cycle->log, ngx_errno, "socketpair() failed");
         return;
     }
 
@@ -774,8 +775,6 @@ static ngx_int_t ngx_epoll_notify(ngx_event_handler_pt handler)
 
 static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, ngx_uint_t flags)
 {
-    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
-
     int                events;
     uint32_t           revents;
     ngx_int_t          instance, i;
@@ -791,11 +790,11 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, 
 
     printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
-    events = epoll_wait(ep, event_list, (int) nevents, timer);
+    events = epoll_wait(ep, event_list, (int)nevents, timer);
 
     err    = (events == -1) ? ngx_errno : 0;
 
-    if (flags & NGX_UPDATE_TIME || ngx_event_timer_alarm) 
+    if (flags & NGX_UPDATE_TIME || ngx_event_timer_alarm)
     {
         ngx_time_update();
     }

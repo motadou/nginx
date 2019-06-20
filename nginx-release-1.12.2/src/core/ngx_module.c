@@ -44,10 +44,14 @@ ngx_int_t ngx_init_modules(ngx_cycle_t *cycle)
 {
     ngx_uint_t  i;
 
+    printf("%s|%s|%d|MODULEMODULEMODULEMODULEMODULEMODULEMODULEMODULEMODULEMODULEMODULE\n", __FILE__, __FUNCTION__, __LINE__);
+
     for (i = 0; cycle->modules[i]; i++) 
     {
         if (cycle->modules[i]->init_module) 
         {
+            printf("%s|%s|%d|MODULE|%s\n", __FILE__, __FUNCTION__, __LINE__, cycle->modules[i]->name);
+
             if (cycle->modules[i]->init_module(cycle) != NGX_OK) 
             {
                 return NGX_ERROR;

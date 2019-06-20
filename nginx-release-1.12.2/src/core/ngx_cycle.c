@@ -1,22 +1,12 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_event.h>
 
-
 static void ngx_destroy_cycle_pools(ngx_conf_t *conf);
-static ngx_int_t ngx_init_zone_pool(ngx_cycle_t *cycle,
-    ngx_shm_zone_t *shm_zone);
+static ngx_int_t ngx_init_zone_pool(ngx_cycle_t *cycle, ngx_shm_zone_t *shm_zone);
 static ngx_int_t ngx_test_lockfile(u_char *file, ngx_log_t *log);
 static void ngx_clean_old_cycles(ngx_event_t *ev);
 static void ngx_shutdown_timer_handler(ngx_event_t *ev);
-
 
 volatile ngx_cycle_t  *ngx_cycle;
 ngx_array_t            ngx_old_cycles;
@@ -59,7 +49,6 @@ ngx_cycle_t * ngx_init_cycle(ngx_cycle_t *old_cycle)
     tp->sec = 0;
 
     ngx_time_update();
-
 
     log = old_cycle->log;
 
@@ -324,6 +313,8 @@ ngx_cycle_t * ngx_init_cycle(ngx_cycle_t *old_cycle)
             }
         }
     }
+
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
 
     if (ngx_process == NGX_PROCESS_SIGNALLER) 
     {
@@ -635,6 +626,8 @@ ngx_cycle_t * ngx_init_cycle(ngx_cycle_t *old_cycle)
         }
     }
 
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
+
     if (ngx_open_listening_sockets(cycle) != NGX_OK) 
     {
         goto failed;
@@ -645,20 +638,22 @@ ngx_cycle_t * ngx_init_cycle(ngx_cycle_t *old_cycle)
         ngx_configure_listening_sockets(cycle);
     }
 
-
     /* commit the new cycle configuration */
-
-    if (!ngx_use_stderr) {
+    if (!ngx_use_stderr) 
+    {
         (void) ngx_log_redirect_stderr(cycle);
     }
 
     pool->log = cycle->log;
+
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
 
     if (ngx_init_modules(cycle) != NGX_OK) {
         /* fatal */
         exit(1);
     }
 
+    printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
 
     /* close and delete stuff that lefts from an old cycle */
 
@@ -886,9 +881,7 @@ failed:
     return NULL;
 }
 
-
-static void
-ngx_destroy_cycle_pools(ngx_conf_t *conf)
+static void ngx_destroy_cycle_pools(ngx_conf_t *conf)
 {
     ngx_destroy_pool(conf->temp_pool);
     ngx_destroy_pool(conf->pool);
@@ -976,7 +969,6 @@ ngx_int_t ngx_create_pidfile(ngx_str_t *name, ngx_log_t *log)
 
     printf("%s|%s|%d ****:%s\n", __FILE__, __FUNCTION__, __LINE__, file.name.data);
 
-
     create    = ngx_test_config ? NGX_FILE_CREATE_OR_OPEN : NGX_FILE_TRUNCATE;
 
     file.fd   = ngx_open_file(file.name.data, NGX_FILE_RDWR, create, NGX_FILE_DEFAULT_ACCESS);
@@ -1011,7 +1003,7 @@ void ngx_delete_pidfile(ngx_cycle_t *cycle)
     u_char           *name;
     ngx_core_conf_t  *ccf;
 
-    ccf = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
+    ccf  = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
 
     name = ngx_new_binary ? ccf->oldpid.data : ccf->pid.data;
 
@@ -1021,9 +1013,7 @@ void ngx_delete_pidfile(ngx_cycle_t *cycle)
     }
 }
 
-
-ngx_int_t
-ngx_signal_process(ngx_cycle_t *cycle, char *sig)
+ngx_int_t ngx_signal_process(ngx_cycle_t *cycle, char *sig)
 {
     ssize_t           n;
     ngx_pid_t         pid;
@@ -1040,12 +1030,11 @@ ngx_signal_process(ngx_cycle_t *cycle, char *sig)
     file.name = ccf->pid;
     file.log = cycle->log;
 
-    file.fd = ngx_open_file(file.name.data, NGX_FILE_RDONLY,
-                            NGX_FILE_OPEN, NGX_FILE_DEFAULT_ACCESS);
+    file.fd = ngx_open_file(file.name.data, NGX_FILE_RDONLY, NGX_FILE_OPEN, NGX_FILE_DEFAULT_ACCESS);
 
-    if (file.fd == NGX_INVALID_FILE) {
-        ngx_log_error(NGX_LOG_ERR, cycle->log, ngx_errno,
-                      ngx_open_file_n " \"%s\" failed", file.name.data);
+    if (file.fd == NGX_INVALID_FILE) 
+    {
+        ngx_log_error(NGX_LOG_ERR, cycle->log, ngx_errno, ngx_open_file_n " \"%s\" failed", file.name.data);
         return 1;
     }
 

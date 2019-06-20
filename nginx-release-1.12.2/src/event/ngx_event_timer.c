@@ -28,23 +28,22 @@ ngx_event_timer_init(ngx_log_t *log)
     return NGX_OK;
 }
 
-
-ngx_msec_t
-ngx_event_find_timer(void)
+ngx_msec_t ngx_event_find_timer(void)
 {
     ngx_msec_int_t      timer;
     ngx_rbtree_node_t  *node, *root, *sentinel;
 
-    if (ngx_event_timer_rbtree.root == &ngx_event_timer_sentinel) {
+    if (ngx_event_timer_rbtree.root == &ngx_event_timer_sentinel) 
+    {
         return NGX_TIMER_INFINITE;
     }
 
-    root = ngx_event_timer_rbtree.root;
+    root     = ngx_event_timer_rbtree.root;
     sentinel = ngx_event_timer_rbtree.sentinel;
 
-    node = ngx_rbtree_min(root, sentinel);
+    node     = ngx_rbtree_min(root, sentinel);
 
-    timer = (ngx_msec_int_t) (node->key - ngx_current_msec);
+    timer    = (ngx_msec_int_t) (node->key - ngx_current_msec);
 
     return (ngx_msec_t) (timer > 0 ? timer : 0);
 }

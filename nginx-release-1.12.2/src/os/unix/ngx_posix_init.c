@@ -30,24 +30,24 @@ ngx_os_io_t ngx_os_io = {
     0
 };
 
-
-ngx_int_t
-ngx_os_init(ngx_log_t *log)
+ngx_int_t ngx_os_init(ngx_log_t *log)
 {
     ngx_time_t  *tp;
     ngx_uint_t   n;
 
 #if (NGX_HAVE_OS_SPECIFIC_INIT)
-    if (ngx_os_specific_init(log) != NGX_OK) {
+    if (ngx_os_specific_init(log) != NGX_OK) 
+    {
         return NGX_ERROR;
     }
 #endif
 
-    if (ngx_init_setproctitle(log) != NGX_OK) {
+    if (ngx_init_setproctitle(log) != NGX_OK) 
+    {
         return NGX_ERROR;
     }
 
-    ngx_pagesize = getpagesize();
+    ngx_pagesize       = getpagesize();
     ngx_cacheline_size = NGX_CPU_CACHE_LINE;
 
     for (n = ngx_pagesize; n >>= 1; ngx_pagesize_shift++) { /* void */ }

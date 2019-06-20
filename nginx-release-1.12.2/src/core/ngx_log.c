@@ -298,7 +298,7 @@ ngx_log_errno(u_char *buf, u_char *last, ngx_err_t err)
     return buf;
 }
 
-ngx_log_t * ngx_log_init(u_char *prefix)
+ngx_log_t * ngx_log_init(u_char * prefix)
 {
     u_char  *p, *name;
     size_t   nlen, plen;
@@ -308,10 +308,7 @@ ngx_log_t * ngx_log_init(u_char *prefix)
 
     name = (u_char *) NGX_ERROR_LOG_PATH;
 
-    /*
-     * we use ngx_strlen() here since BCC warns about
-     * condition is always false and unreachable code
-     */
+    /* we use ngx_strlen() here since BCC warns about condition is always false and unreachable code*/
     nlen = ngx_strlen(name);
 
     if (nlen == 0) 
@@ -322,11 +319,8 @@ ngx_log_t * ngx_log_init(u_char *prefix)
 
     p = NULL;
 
-#if (NGX_WIN32)
-    if (name[1] != ':') {
-#else
-    if (name[0] != '/') {
-#endif
+    if (name[0] != '/') 
+    {
         if (prefix) 
         {
             plen = ngx_strlen(prefix);
@@ -335,7 +329,7 @@ ngx_log_t * ngx_log_init(u_char *prefix)
         {
 #ifdef NGX_PREFIX
             prefix = (u_char *) NGX_PREFIX;
-            plen = ngx_strlen(prefix);
+            plen   = ngx_strlen(prefix);
 #else
             plen = 0;
 #endif
@@ -344,13 +338,15 @@ ngx_log_t * ngx_log_init(u_char *prefix)
         if (plen)
         {
             name = malloc(plen + nlen + 2);
-            if (name == NULL) {
+            if (name == NULL) 
+            {
                 return NULL;
             }
 
             p = ngx_cpymem(name, prefix, plen);
 
-            if (!ngx_path_separator(*(p - 1))) {
+            if (!ngx_path_separator(*(p - 1)))
+            {
                 *p++ = '/';
             }
 
@@ -360,22 +356,19 @@ ngx_log_t * ngx_log_init(u_char *prefix)
         }
     }
 
+
+    printf("%s|%s|%d|%s================================================================================================\n", __FILE__, __FUNCTION__, __LINE__, name);
+
     ngx_log_file.fd = ngx_open_file(name, NGX_FILE_APPEND, NGX_FILE_CREATE_OR_OPEN, NGX_FILE_DEFAULT_ACCESS);
 
-    if (ngx_log_file.fd == NGX_INVALID_FILE) {
-        ngx_log_stderr(ngx_errno,
-                       "[alert] could not open error log file: "
-                       ngx_open_file_n " \"%s\" failed", name);
-#if (NGX_WIN32)
-        ngx_event_log(ngx_errno,
-                       "could not open error log file: "
-                       ngx_open_file_n " \"%s\" failed", name);
-#endif
-
+    if (ngx_log_file.fd == NGX_INVALID_FILE) 
+    {
+        ngx_log_stderr(ngx_errno, "[alert] could not open error log file: " ngx_open_file_n " \"%s\" failed", name);
         ngx_log_file.fd = ngx_stderr;
     }
 
-    if (p) {
+    if (p) 
+    {
         ngx_free(p);
     }
 

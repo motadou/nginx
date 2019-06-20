@@ -1,18 +1,8 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_channel.h>
 
-
-ngx_int_t
-ngx_write_channel(ngx_socket_t s, ngx_channel_t *ch, size_t size,
-    ngx_log_t *log)
+ngx_int_t ngx_write_channel(ngx_socket_t s, ngx_channel_t *ch, size_t size, ngx_log_t *log)
 {
     ssize_t             n;
     ngx_err_t           err;
@@ -20,17 +10,18 @@ ngx_write_channel(ngx_socket_t s, ngx_channel_t *ch, size_t size,
     struct msghdr       msg;
 
 #if (NGX_HAVE_MSGHDR_MSG_CONTROL)
-
     union {
         struct cmsghdr  cm;
         char            space[CMSG_SPACE(sizeof(int))];
     } cmsg;
 
-    if (ch->fd == -1) {
+    if (ch->fd == -1) 
+    {
         msg.msg_control = NULL;
         msg.msg_controllen = 0;
-
-    } else {
+    } 
+    else 
+    {
         msg.msg_control = (caddr_t) &cmsg;
         msg.msg_controllen = sizeof(cmsg);
 
@@ -91,9 +82,7 @@ ngx_write_channel(ngx_socket_t s, ngx_channel_t *ch, size_t size,
     return NGX_OK;
 }
 
-
-ngx_int_t
-ngx_read_channel(ngx_socket_t s, ngx_channel_t *ch, size_t size, ngx_log_t *log)
+ngx_int_t ngx_read_channel(ngx_socket_t s, ngx_channel_t *ch, size_t size, ngx_log_t *log)
 {
     ssize_t             n;
     ngx_err_t           err;
@@ -179,7 +168,8 @@ ngx_read_channel(ngx_socket_t s, ngx_channel_t *ch, size_t size, ngx_log_t *log)
 
 #else
 
-    if (ch->command == NGX_CMD_OPEN_CHANNEL) {
+    if (ch->command == NGX_CMD_OPEN_CHANNEL) 
+    {
         if (msg.msg_accrightslen != sizeof(int)) {
             ngx_log_error(NGX_LOG_ALERT, log, 0,
                           "recvmsg() returned no ancillary data");

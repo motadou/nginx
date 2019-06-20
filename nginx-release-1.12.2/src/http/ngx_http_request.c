@@ -1027,7 +1027,7 @@ static void ngx_http_process_request_line(ngx_event_t *rev)
             r->method_name.len   = r->method_end - r->request_start + 1;
             r->method_name.data  = r->request_line.data;
 
-            printf("%s|%s|%d|%d|#####:%s\n", __FILE__, __FUNCTION__, __LINE__, getpid(), r->method_name.data);
+            printf("%s|%s|%d|%d|#####:%s\n\n", __FILE__, __FUNCTION__, __LINE__, getpid(), r->method_name.data);
 
             if (r->http_protocol.data) 
             {

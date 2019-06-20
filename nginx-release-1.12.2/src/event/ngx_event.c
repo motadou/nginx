@@ -189,11 +189,14 @@ void ngx_process_events_and_timers(ngx_cycle_t *cycle)
 
     if (ngx_timer_resolution) 
     {
+        printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
         timer = NGX_TIMER_INFINITE;
         flags = 0;
     } 
     else 
     {
+        /// ×ßÕâÀï
         timer = ngx_event_find_timer();
         flags = NGX_UPDATE_TIME;
     }
@@ -201,7 +204,6 @@ void ngx_process_events_and_timers(ngx_cycle_t *cycle)
     if (ngx_use_accept_mutex) 
     {
         printf("%s|%s|%d|%d|MUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEXMUTEX\n", __FILE__, __FUNCTION__, __LINE__, getpid());
-
 
         if (ngx_accept_disabled > 0) 
         {
@@ -575,7 +577,7 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t *cycle)
     ccf = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
     ecf = ngx_event_get_conf(cycle->conf_ctx, ngx_event_core_module);
 
-    if (ccf->master && ccf->worker_processes > 1 && ecf->accept_mutex) 
+    if (ccf->master && ccf->worker_processes > 1 && ecf->accept_mutex)
     {
         ngx_use_accept_mutex   = 1;
         ngx_accept_mutex_held  = 0;
@@ -589,29 +591,39 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t *cycle)
     ngx_queue_init(&ngx_posted_accept_events);
     ngx_queue_init(&ngx_posted_events);
 
+    printf("%s|%s|%d|\n", __FILE__, __FUNCTION__, __LINE__);
+
     if (ngx_event_timer_init(cycle->log) == NGX_ERROR) 
     {
         return NGX_ERROR;
     }
 
-    for (m = 0; cycle->modules[m]; m++) {
-        if (cycle->modules[m]->type != NGX_EVENT_MODULE) {
+    for (m = 0; cycle->modules[m]; m++) 
+    {
+        if (cycle->modules[m]->type != NGX_EVENT_MODULE) 
+        {
             continue;
         }
 
-        if (cycle->modules[m]->ctx_index != ecf->use) {
+        if (cycle->modules[m]->ctx_index != ecf->use) 
+        {
             continue;
         }
 
         module = cycle->modules[m]->ctx;
 
-        if (module->actions.init(cycle, ngx_timer_resolution) != NGX_OK) {
+        printf("%s|%s|%d|%s\n", __FILE__, __FUNCTION__, __LINE__, module->name->data);
+
+        if (module->actions.init(cycle, ngx_timer_resolution) != NGX_OK) 
+        {
             /* fatal */
             exit(2);
         }
 
         break;
     }
+
+    printf("%s|%s|%d|\n", __FILE__, __FUNCTION__, __LINE__);
 
     if (ngx_timer_resolution && !(ngx_event_flags & NGX_USE_TIMER_EVENT)) 
     {
@@ -638,6 +650,8 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t *cycle)
                           "setitimer() failed");
         }
     }
+
+    printf("%s|%s|%d|\n", __FILE__, __FUNCTION__, __LINE__);
 
     if (ngx_event_flags & NGX_USE_FD_EVENT) {
         struct rlimit  rlmt;

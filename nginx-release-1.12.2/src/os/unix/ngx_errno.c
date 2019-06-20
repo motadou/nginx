@@ -1,7 +1,6 @@
 #include <ngx_config.h>
 #include <ngx_core.h>
 
-
 /*
  * The strerror() messages are copied because:
  *
@@ -17,7 +16,6 @@
  *    causing false bug reports.
  */
 
-
 static ngx_str_t  *ngx_sys_errlist;
 static ngx_str_t   ngx_unknown_error = ngx_string("Unknown error");
 
@@ -25,7 +23,7 @@ u_char * ngx_strerror(ngx_err_t err, u_char *errstr, size_t size)
 {
     ngx_str_t  *msg;
 
-    msg  = ((ngx_uint_t) err < NGX_SYS_NERR)?&ngx_sys_errlist[err]:&ngx_unknown_error;
+    msg  = ((ngx_uint_t) err < NGX_SYS_NERR)?(&ngx_sys_errlist[err]):(&ngx_unknown_error);
     size = ngx_min(size, msg->len);
 
     return ngx_cpymem(errstr, msg->data, size);

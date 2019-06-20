@@ -208,7 +208,7 @@ static u_char      *ngx_conf_file;
 static u_char      *ngx_conf_params;
 static char        *ngx_signal;
 
-static char **ngx_os_environ;
+static char       **ngx_os_environ;
 
 int ngx_cdecl main(int argc, char * const * argv)
 {
@@ -277,7 +277,7 @@ int ngx_cdecl main(int argc, char * const * argv)
         return 1;
     }
 
-    if (ngx_process_options(&init_cycle) != NGX_OK) 
+    if (ngx_process_options(&init_cycle) != NGX_OK)
     {
         return 1;
     }
@@ -318,6 +318,8 @@ int ngx_cdecl main(int argc, char * const * argv)
 
     printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /// STEP 测试配置文件
     if (ngx_test_config) 
     {
         if (!ngx_quiet_mode) 
@@ -365,6 +367,7 @@ int ngx_cdecl main(int argc, char * const * argv)
 
     printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
 
+    /// STEP 初始化信号
     if (ngx_init_signals(cycle->log) != NGX_OK) 
     {
         return 1;
@@ -389,6 +392,7 @@ int ngx_cdecl main(int argc, char * const * argv)
 
     printf("%s|%s|%d\n", __FILE__, __FUNCTION__, __LINE__);
 
+    /// 创建PID文件
     if (ngx_create_pidfile(&ccf->pid, cycle->log) != NGX_OK) 
     {
         return 1;
@@ -409,15 +413,16 @@ int ngx_cdecl main(int argc, char * const * argv)
 
     ngx_use_stderr = 0;
 
+    /// STEP 启动处理进程
     if (ngx_process == NGX_PROCESS_SINGLE) 
     {
-        printf("%s|%s|%d|%d**********************************************************\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+        printf("%s|%s|%d|%d*****************************************************************************************************\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
         ngx_single_process_cycle(cycle);
     } 
     else
     {
-        printf("%s|%s|%d|%d**********************************************************\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+        printf("%s|%s|%d|%d*****************************************************************************************************\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
         ngx_master_process_cycle(cycle);
     }
@@ -432,31 +437,22 @@ static void ngx_show_version_info(void)
     if (ngx_show_help) 
     {
         ngx_write_stderr(
-            "Usage: nginx [-?hvVtTq] [-s signal] [-c filename] "
-                         "[-p prefix] [-g directives]" NGX_LINEFEED
-                         NGX_LINEFEED
+            "Usage: nginx [-?hvVtTq] [-s signal] [-c filename] " "[-p prefix] [-g directives]" NGX_LINEFEED NGX_LINEFEED
             "Options:" NGX_LINEFEED
             "  -?,-h         : this help" NGX_LINEFEED
             "  -v            : show version and exit" NGX_LINEFEED
-            "  -V            : show version and configure options then exit"
-                               NGX_LINEFEED
+            "  -V            : show version and configure options then exit" NGX_LINEFEED
             "  -t            : test configuration and exit" NGX_LINEFEED
-            "  -T            : test configuration, dump it and exit"
-                               NGX_LINEFEED
-            "  -q            : suppress non-error messages "
-                               "during configuration testing" NGX_LINEFEED
-            "  -s signal     : send signal to a master process: "
-                               "stop, quit, reopen, reload" NGX_LINEFEED
+            "  -T            : test configuration, dump it and exit" NGX_LINEFEED
+            "  -q            : suppress non-error messages " "during configuration testing" NGX_LINEFEED
+            "  -s signal     : send signal to a master process: " "stop, quit, reopen, reload" NGX_LINEFEED
 #ifdef NGX_PREFIX
-            "  -p prefix     : set prefix path (default: " NGX_PREFIX ")"
-                               NGX_LINEFEED
+            "  -p prefix     : set prefix path (default: " NGX_PREFIX ")" NGX_LINEFEED
 #else
             "  -p prefix     : set prefix path (default: NONE)" NGX_LINEFEED
 #endif
-            "  -c filename   : set configuration file (default: " NGX_CONF_PATH
-                               ")" NGX_LINEFEED
-            "  -g directives : set global directives out of configuration "
-                               "file" NGX_LINEFEED NGX_LINEFEED
+            "  -c filename   : set configuration file (default: " NGX_CONF_PATH ")" NGX_LINEFEED
+            "  -g directives : set global directives out of configuration " "file" NGX_LINEFEED NGX_LINEFEED
         );
     }
 
@@ -661,7 +657,6 @@ static void ngx_cleanup_environment(void *data)
 
     if (environ == env) 
     {
-
         /*
          * if the environment is still used, as it happens on exit,
          * the only option is to leak it
@@ -673,9 +668,7 @@ static void ngx_cleanup_environment(void *data)
     ngx_free(env);
 }
 
-
-ngx_pid_t
-ngx_exec_new_binary(ngx_cycle_t *cycle, char *const *argv)
+ngx_pid_t ngx_exec_new_binary(ngx_cycle_t *cycle, char *const *argv)
 {
     char             **env, *var;
     u_char            *p;
