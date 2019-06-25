@@ -600,6 +600,8 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t *cycle)
 
     for (m = 0; cycle->modules[m]; m++) 
     {
+        printf("%s|%s|%d|%s|AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\n", __FILE__, __FUNCTION__, __LINE__, cycle->modules[m]->name);
+
         if (cycle->modules[m]->type != NGX_EVENT_MODULE) 
         {
             continue;
@@ -616,7 +618,6 @@ static ngx_int_t ngx_event_process_init(ngx_cycle_t *cycle)
 
         if (module->actions.init(cycle, ngx_timer_resolution) != NGX_OK) 
         {
-            /* fatal */
             exit(2);
         }
 
