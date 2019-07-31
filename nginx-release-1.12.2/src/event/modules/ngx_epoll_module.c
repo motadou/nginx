@@ -877,15 +877,21 @@ static ngx_int_t ngx_epoll_process_events(ngx_cycle_t *cycle, ngx_msec_t timer, 
 
             if (flags & NGX_POST_EVENTS) 
             {
+                printf("%s|%s|%d|%d======OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO==BEGIN\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+
                 queue = rev->accept ? &ngx_posted_accept_events : &ngx_posted_events;
 
                 ngx_post_event(rev, queue);
+
+                printf("%s|%s|%d|%d======OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO==END\n", __FILE__, __FUNCTION__, __LINE__, getpid());
             } 
             else 
             {
-                printf("%s|%s|%d|%d======\n", __FILE__, __FUNCTION__, __LINE__, getpid());
+                printf("%s|%s|%d|%d======AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==BEGIN\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
                 rev->handler(rev);
+                
+                printf("%s|%s|%d|%d======AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==END\n", __FILE__, __FUNCTION__, __LINE__, getpid());
             }
         }
 

@@ -1,31 +1,17 @@
-
-/*
- * Copyright (C) Igor Sysoev
- * Copyright (C) Nginx, Inc.
- */
-
-
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_mail.h>
 
-
 #define NGX_DEFAULT_CIPHERS     "HIGH:!aNULL:!MD5"
 #define NGX_DEFAULT_ECDH_CURVE  "auto"
-
 
 static void *ngx_mail_ssl_create_conf(ngx_conf_t *cf);
 static char *ngx_mail_ssl_merge_conf(ngx_conf_t *cf, void *parent, void *child);
 
-static char *ngx_mail_ssl_enable(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
-static char *ngx_mail_ssl_starttls(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
-static char *ngx_mail_ssl_password_file(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
-static char *ngx_mail_ssl_session_cache(ngx_conf_t *cf, ngx_command_t *cmd,
-    void *conf);
-
+static char *ngx_mail_ssl_enable(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+static char *ngx_mail_ssl_starttls(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+static char *ngx_mail_ssl_password_file(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
+static char *ngx_mail_ssl_session_cache(ngx_conf_t *cf, ngx_command_t *cmd, void *conf);
 
 static ngx_conf_enum_t  ngx_mail_starttls_state[] = {
     { ngx_string("off"), NGX_MAIL_STARTTLS_OFF },
@@ -33,8 +19,6 @@ static ngx_conf_enum_t  ngx_mail_starttls_state[] = {
     { ngx_string("only"), NGX_MAIL_STARTTLS_ONLY },
     { ngx_null_string, 0 }
 };
-
-
 
 static ngx_conf_bitmask_t  ngx_mail_ssl_protocols[] = {
     { ngx_string("SSLv2"), NGX_SSL_SSLv2 },
@@ -45,7 +29,6 @@ static ngx_conf_bitmask_t  ngx_mail_ssl_protocols[] = {
     { ngx_null_string, 0 }
 };
 
-
 static ngx_conf_enum_t  ngx_mail_ssl_verify[] = {
     { ngx_string("off"), 0 },
     { ngx_string("on"), 1 },
@@ -53,7 +36,6 @@ static ngx_conf_enum_t  ngx_mail_ssl_verify[] = {
     { ngx_string("optional_no_ca"), 3 },
     { ngx_null_string, 0 }
 };
-
 
 static ngx_command_t  ngx_mail_ssl_commands[] = {
 

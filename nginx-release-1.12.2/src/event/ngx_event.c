@@ -103,57 +103,66 @@ ngx_module_t  ngx_events_module =
     NGX_MODULE_V1_PADDING
 };
 
-
 static ngx_str_t  event_core_name = ngx_string("event_core");
-
 
 static ngx_command_t  ngx_event_core_commands[] = 
 {
-    { ngx_string("worker_connections"),
-      NGX_EVENT_CONF|NGX_CONF_TAKE1,
-      ngx_event_connections,
-      0,
-      0,
-      NULL },
+    { 
+        ngx_string("worker_connections"),
+        NGX_EVENT_CONF|NGX_CONF_TAKE1,
+        ngx_event_connections,
+        0,
+        0,
+        NULL 
+    },
 
-    { ngx_string("use"),
-      NGX_EVENT_CONF|NGX_CONF_TAKE1,
-      ngx_event_use,
-      0,
-      0,
-      NULL },
+    { 
+        ngx_string("use"),
+        NGX_EVENT_CONF|NGX_CONF_TAKE1,
+        ngx_event_use,
+        0,
+        0,
+        NULL 
+    },
 
-    { ngx_string("multi_accept"),
-      NGX_EVENT_CONF|NGX_CONF_FLAG,
-      ngx_conf_set_flag_slot,
-      0,
-      offsetof(ngx_event_conf_t, multi_accept),
-      NULL },
+    { 
+        ngx_string("multi_accept"),
+        NGX_EVENT_CONF|NGX_CONF_FLAG,
+        ngx_conf_set_flag_slot,
+        0,
+        offsetof(ngx_event_conf_t, multi_accept),
+        NULL 
+    },
 
-    { ngx_string("accept_mutex"),
-      NGX_EVENT_CONF|NGX_CONF_FLAG,
-      ngx_conf_set_flag_slot,
-      0,
-      offsetof(ngx_event_conf_t, accept_mutex),
-      NULL },
+    { 
+        ngx_string("accept_mutex"),
+        NGX_EVENT_CONF|NGX_CONF_FLAG,
+        ngx_conf_set_flag_slot,
+        0,
+        offsetof(ngx_event_conf_t, accept_mutex),
+        NULL 
+    },
 
-    { ngx_string("accept_mutex_delay"),
-      NGX_EVENT_CONF|NGX_CONF_TAKE1,
-      ngx_conf_set_msec_slot,
-      0,
-      offsetof(ngx_event_conf_t, accept_mutex_delay),
-      NULL },
+    { 
+        ngx_string("accept_mutex_delay"),
+        NGX_EVENT_CONF|NGX_CONF_TAKE1,
+        ngx_conf_set_msec_slot,
+        0,
+        offsetof(ngx_event_conf_t, accept_mutex_delay),
+        NULL 
+    },
 
-    { ngx_string("debug_connection"),
-      NGX_EVENT_CONF|NGX_CONF_TAKE1,
-      ngx_event_debug_connection,
-      0,
-      0,
-      NULL },
+    { 
+        ngx_string("debug_connection"),
+        NGX_EVENT_CONF|NGX_CONF_TAKE1,
+        ngx_event_debug_connection,
+        0,
+        0,
+        NULL 
+    },
 
-      ngx_null_command
+    ngx_null_command
 };
-
 
 static ngx_event_module_t  ngx_event_core_module_ctx = {
     &event_core_name,
@@ -162,7 +171,6 @@ static ngx_event_module_t  ngx_event_core_module_ctx = {
 
     { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL }
 };
-
 
 ngx_module_t  ngx_event_core_module = {
     NGX_MODULE_V1,
@@ -179,13 +187,12 @@ ngx_module_t  ngx_event_core_module = {
     NGX_MODULE_V1_PADDING
 };
 
-
 void ngx_process_events_and_timers(ngx_cycle_t *cycle)
 {
-    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
-    
     ngx_uint_t  flags;
     ngx_msec_t  timer, delta;
+
+    printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
 
     if (ngx_timer_resolution) 
     {
@@ -208,11 +215,11 @@ void ngx_process_events_and_timers(ngx_cycle_t *cycle)
         if (ngx_accept_disabled > 0) 
         {
             ngx_accept_disabled--;
-        } 
+        }
         else 
         {
             printf("%s|%s|%d|%d|==================================================\n", __FILE__, __FUNCTION__, __LINE__, getpid());
-            if (ngx_trylock_accept_mutex(cycle) == NGX_ERROR) 
+            if (ngx_trylock_accept_mutex(cycle) == NGX_ERROR)
             {
                 return;
             }
@@ -235,6 +242,7 @@ void ngx_process_events_and_timers(ngx_cycle_t *cycle)
 
     delta = ngx_current_msec;
 
+    /// 调用epoll处理
     (void) ngx_process_events(cycle, timer, flags);
 
     printf("%s|%s|%d|%d\n", __FILE__, __FUNCTION__, __LINE__, getpid());
